@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{3EB7A72B-E69A-46FD-825D-D5AA64A0110C}</ProjectGuid>
+    <ProjectGuid>{D8E54591-3698-492E-B1AC-747CECC890A2}</ProjectGuid>
     <RootNamespace>My0_SDL_Window</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -137,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
+    <ClInclude Include="vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="frag.glsl" />
