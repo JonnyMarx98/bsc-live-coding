@@ -165,13 +165,13 @@ int main(int argc, char* args[])
 
 	Vertex triangleVertices[] = 
 	{
-		{-1.0f,-1.0f,-1.0f, 1.0f,0.0f,1.0f,1.0f }, // 0
-		{-1.0f,-1.0f, 1.0f, 1.0f,1.0f,0.0f,1.0f},  // 1
-		{-1.0f, 1.0f, 1.0f, 1.0f,1.0f,0.0f,1.0f},  // 2
-		{1.0f, 1.0f,-1.0f, 1.0f,1.0f,0.0f,1.0f },  // 3
-		{-1.0f, 1.0f,-1.0f, 0.0f,1.0f,1.0f,1.0f }, // 4
-		{1.0f,-1.0f, 1.0f, 1.0f,1.0f,0.0f,1.0f },  // 5
-		{1.0f,-1.0f,-1.0f, 1.0f,1.0f,0.0f,1.0f },  // 6
+		{-1.0f,-1.0f,-1.0f, 1.0f,0.2f,0.2f,0.5f }, // 0
+		{-1.0f,-1.0f, 1.0f, 1.0f,0.2f,0.2f,0.5f},  // 1
+		{-1.0f, 1.0f, 1.0f, 1.0f,0.2f,0.2f,0.5f},  // 2
+		{1.0f, 1.0f,-1.0f, 1.0f,0.2f,0.2f,0.5f },  // 3
+		{-1.0f, 1.0f,-1.0f, 1.0f,0.0f,0.0f,1.0f }, // 4
+		{1.0f,-1.0f, 1.0f, 1.0f,0.0f,0.0f,1.0f },  // 5
+		{1.0f,-1.0f,-1.0f, 1.0f,0.0f,0.0f,1.0f },  // 6
 		{1.0f, 1.0f, 1.0f, 1.0f,0.0f,0.0f,1.0f}    // 7
 	};
 
@@ -208,7 +208,7 @@ int main(int argc, char* args[])
 
 	vec3 trianglePosition = vec3(0.0f,0.0f,0.0f);
 	vec3 triangleScale = vec3(1.0f,1.0f,1.f);
-	vec3 triangleRotation = vec3(1.0f, 0.0f, 0.0f);
+	vec3 triangleRotation = vec3(0.0f, 0.0f, 0.0f);
 
 	mat4 translationMatrix = translate(trianglePosition);
 	mat4 scaleMatrix = scale(triangleScale);
@@ -238,6 +238,9 @@ int main(int argc, char* args[])
 	GLint viewMatrixLocation = glGetUniformLocation(basicProgramID, "viewMatrix");
 	GLint projectionMatrixLocation = glGetUniformLocation(basicProgramID, "projectionMatrix");
 
+	int lastTicks = SDL_GetTicks();
+	int currentTicks = SDL_GetTicks();
+
 	//Event loop, we will loop until running is set to false, usually if escape has been pressed or window is closed
 	bool running = true;
 	//SDL Event structure, this will be checked in the while loop
@@ -260,17 +263,34 @@ int main(int argc, char* args[])
 				//Check the actual key code of the key that has been pressed
 				switch (ev.key.keysym.sym)
 				{
-					//Escape key
+					// Keys
 				case SDLK_ESCAPE:
 					running = false;
 					break;
-				case SDLK_d:
-					printf("d");
-					trianglePosition.x += 1.0f;
-				}
+				case SDLK_RIGHT:
+					triangleRotation.y += 0.2f;
+					break;
+				case SDLK_LEFT:
+					triangleRotation.y -= 0.2f;
+					break;
+				case SDLK_UP:
+					triangleRotation.x += 0.2f;
+					break;
+				case SDLK_DOWN:
+					triangleRotation.x -= 0.2f;
+					break;
+
+				}				
 			}
 		}
 		//Update Game and Draw with OpenGL!!
+
+		//Recalculate translations
+		rotationMatrix = rotate(triangleRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(triangleRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(triangleRotation.z, vec3(1.0f, 0.0f, 1.0f));
+		modelMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+
+		currentTicks = SDL_GetTicks();
+		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 		
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 
