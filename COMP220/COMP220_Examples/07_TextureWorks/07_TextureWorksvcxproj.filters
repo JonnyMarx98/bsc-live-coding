@@ -23,12 +23,5 @@
     <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="vert.glsl" />
-    <None Include="frag.glsl" />
   </ItemGroup>
 </Project>
