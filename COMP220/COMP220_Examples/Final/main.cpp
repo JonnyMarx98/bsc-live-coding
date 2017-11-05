@@ -73,9 +73,16 @@ int main(int argc, char* args[])
 
 	mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
 
+	// Camera Properties
 	vec3 cameraPosition = vec3(0.0f, 0.0f, -8.0f);
 	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
 	vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
+	vec3 cameraDirection = vec3(0.0f);
+	vec3 FPScameraPos = vec3(0.0f);	
+	float CameraX = 0.0f;
+	float CameraY = 0.0f;
+	float CameraDistance = (float)(cameraTarget - cameraPosition).length();
+	
 
 	mat4 viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
 
@@ -94,11 +101,6 @@ int main(int argc, char* args[])
 	GLint viewMatrixLocation = glGetUniformLocation(programID, "viewMatrix");
 	GLint projectionMatrixLocation = glGetUniformLocation(programID, "projectionMatrix");
 	GLint textureLocation = glGetUniformLocation(programID, "baseTexture");
-
-	vec3 FPScameraPos = vec3(0.0f);
-	float CameraX = -90.0f;
-	float CameraY = 0.0f;
-	float CameraDistance = (float)(cameraTarget - cameraPosition).length();
 
 	SDL_ShowCursor(SDL_DISABLE);
 	SDL_SetRelativeMouseMode(SDL_bool(SDL_ENABLE));
@@ -128,10 +130,16 @@ int main(int argc, char* args[])
 				break;
 
 			case SDL_MOUSEMOTION:
+				// Get Mouse Motion of X and Y
 				CameraX += ev.motion.xrel / 200.0f;
 				CameraY += -ev.motion.yrel / 200.0f;
-				if (CameraY > 85.0f) CameraY = 85.0f; else if (CameraY < -85.0f) CameraY = -85.0f;
+				// Limit camera range
+				if (CameraY > 150.0f) CameraY = 150.0f; else if (CameraY < -150.0f) CameraY = -150.0f;
+				// Calculate camera target using CameraX and CameraY
 				cameraTarget = cameraPosition + CameraDistance * vec3(cos(CameraX), tan(CameraY), sin(CameraX));
+				// Normalised camera direction
+				cameraDirection = normalize(cameraTarget - cameraPosition);
+				
 				break;
 
 				//KEYDOWN Message, called when a key has been pressed down
@@ -158,29 +166,23 @@ int main(int argc, char* args[])
 
 
 				case SDLK_w:
-					// Move Forward
-					FPScameraPos = normalize(cameraTarget - cameraPosition) * 0.2f;
+					FPScameraPos = cameraDirection * 0.2f;
 					break;
 				case SDLK_s:
-					FPScameraPos = -normalize(cameraTarget - cameraPosition) * 0.2f;
+					FPScameraPos = -cameraDirection * 0.2f;
 					break;
 				case SDLK_a:
-					FPScameraPos = -cross((normalize(cameraTarget - cameraPosition)), cameraUp) * 0.5f;
+					FPScameraPos = -cross(cameraDirection, cameraUp) * 0.5f;
 					break;
 				case SDLK_d:
-					FPScameraPos = cross((normalize(cameraTarget - cameraPosition)), cameraUp) * 0.5f;
+					FPScameraPos = cross(cameraDirection, cameraUp) * 0.5f;
 					break;
-
-				//default:
-				//	FPScameraPos = vec3(0.0f);
 				}
-				cameraPosition += vec3(FPScameraPos.x, FPScameraPos.y, FPScameraPos.z);
-				cameraTarget += vec3(FPScameraPos.x, FPScameraPos.y, FPScameraPos.z);
+				cameraPosition += FPScameraPos;
+				cameraTarget += FPScameraPos;
 			}
 		}
 		//Update Game and Draw with OpenGL!!
-
-		
 
 		//Recalculate translations
 		rotationMatrix = rotate(triangleRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(triangleRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(triangleRotation.z, vec3(1.0f, 0.0f, 1.0f));
