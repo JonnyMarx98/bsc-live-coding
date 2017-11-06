@@ -192,7 +192,7 @@ int main(int argc, char* args[])
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
-		glClearColor(1.0, 0.0, 0.0, 1.0);
+		glClearColor(1.0, 1.0, 1.0, 1.0);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

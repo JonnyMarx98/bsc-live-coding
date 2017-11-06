@@ -1,0 +1,115 @@
+sesh notes 
+1. calc surface normals
+open vertex.h:
+float normalX, normalY, normalZ
+
+
+
+
+
+mesh.cpp:
+glEnableVertexAttribArray(3);
+glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
+
+
+
+
+
+
+model.cpp:
+aiVector3D currentNormals = currentMesh->mNormals[v];
+Vertex currentVertex = { currentModelVertex.x,currentModelVertex.y,currentModelVertex.z,
+				1.0f,1.0f,1.0f,1.0f,
+				currentTextureCoordinates.x,currentTextureCoordinates.y,
+				currentNormals.x,currentNormals.y,currentNormals.z
+			};
+break point 88! if you do 89 you will travel back in time!
+
+
+
+
+
+
+main.cpp:
+//Light
+	vec4 ambientLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	vec3 lightDirection = vec3(0.0f, 0.0f, -1.0f);
+	vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	vec4 specularLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+//Material
+	vec4 ambientMaterialColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	vec4 diffuseMaterialColour = vec4(0.0f, 0.6f, 0.0f, 1.0f);
+	vec4 specularMaterialColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	float specularPower = 25.0f;
+
+GLint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
+GLint ambientLightColourLocation = glGetUniformLocation(programID, "ambientLightColour");
+GLint diffuseLightColourLocation = glGetUniformLocation(programID, "diffuseLightColour");
+GLint specularLightColourLocation = glGetUniformLocation(programID, "specularLightColour");
+
+GLint ambientMaterialColourLocation = glGetUniformLocation(programID, "ambientMaterialColour");
+GLint diffuseMaterialColourLocation = glGetUniformLocation(programID, "diffuseMaterialColour");
+GLint specularMaterialColourLocation= glGetUniformLocation(programID, "specularMaterialColour");
+GLint specularPowerLocation = glGetUniformLocation(programID, "specularPower");
+
+GLuint programID = LoadShaders("lightingVert.glsl", "lightingFrag.glsl");
+
+glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
+glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
+glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
+
+glUniform4fv(ambientMaterialColourLocation, 1, value_ptr(ambientMaterialColour));
+glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
+glUniform4fv(specularMaterialColourLocation, 1, value_ptr(specularMaterialColour));
+glUniform1f(specularPowerLocation, specularPower);
+
+
+
+
+copy textureVert and textureFrag and name lightingVert and lightingFrag
+
+lightingVert.glsl:
+layout(location=3) in vec3 vertexNormals;
+
+//ligthing
+uniform vec3 lightDirection;
+uniform vec4 ambientLightColour;
+uniform vec4 diffuseLightColour;
+uniform vec4 specularLightColour;
+
+//Material
+uniform vec4 ambientMaterialColour;
+uniform vec4 diffuseMaterialColour;
+uniform vec4 specularMaterialColour;
+uniform float specularPower;
+
+out vec4 diffuse;
+out vec4 specular;
+out vec4 ambient;
+
+in main func
+//World position of vertex
+	vec4 worldPosition=modelMatrix*vec4(vertexPosition,1.0f);
+
+	vec3 viewDirection=normalize(cameraPosition-worldPosition.xyz);
+
+	//calculate ambient
+	ambient=ambientMaterialColour*ambientLightColour;
+
+	//Calculate Diffuse lighting
+	float nDotl=clamp(dot(worldNormals.xyz,lightDirection),0,1);
+	diffuse=diffuseMaterialColour*diffuseLightColour*nDotl;
+
+	//Calculate Specular lighting
+	vec3 halfWay=normalize(lightDirection+viewDirection);
+	float nDoth=clamp(dot(worldNormals.xyz,halfWay),0,1);
+	float specularInstensity=pow(nDoth,specularPower);
+	specular=specularMaterialColour*specularLightColour*specularInstensity;
+
+
+lightingFrag.glsl:
+
+
+
+WATCH LIVE CODE VIDEO
