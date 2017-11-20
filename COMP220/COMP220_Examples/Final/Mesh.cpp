@@ -43,6 +43,9 @@ void Mesh::copyMeshData(std::vector<Vertex>& vertices, std::vector<unsigned int>
 
 	m_numberOfVerts = vertices.size();
 	m_numberOfIndices = indices.size();
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(9 * sizeof(float)));
 }
 
 void Mesh::init()

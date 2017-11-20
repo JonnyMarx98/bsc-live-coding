@@ -22,6 +22,8 @@ bool loadModelFromFile(const std::string& filename, GLuint VBO, GLuint EBO, unsi
 		{
 			const aiVector3D currentAIPosition = currentAIMesh->mVertices[v];
 
+			aiVector3D currentNormals = currentAIMesh->mNormals[v];
+
 			Vertex ourVertex;
 			ourVertex.x = currentAIPosition.x;
 			ourVertex.y = currentAIPosition.y;
@@ -29,6 +31,10 @@ bool loadModelFromFile(const std::string& filename, GLuint VBO, GLuint EBO, unsi
 
 			ourVertex.r = 1.0f; ourVertex.g = 1.0f; ourVertex.b = 1.0f; ourVertex.a = 1.0f;
 			ourVertex.tu = 0.0f; ourVertex.tv = 0.0f;
+
+			ourVertex.normalX = currentNormals.x;
+			ourVertex.normalY = currentNormals.y;
+			ourVertex.normalZ = currentNormals.z;
 
 			if (currentAIMesh->HasTextureCoords(0))
 			{
@@ -96,6 +102,8 @@ bool loadMeshesFromFile(const std::string & filename, std::vector<Mesh*>& meshes
 		{
 			const aiVector3D currentAIPosition = currentAIMesh->mVertices[v];
 
+			aiVector3D currentNormals = currentAIMesh->mNormals[v];
+
 			Vertex ourVertex;
 			ourVertex.x = currentAIPosition.x;
 			ourVertex.y = currentAIPosition.y;
@@ -103,6 +111,10 @@ bool loadMeshesFromFile(const std::string & filename, std::vector<Mesh*>& meshes
 
 			ourVertex.r = 1.0f; ourVertex.g = 1.0f; ourVertex.b = 1.0f; ourVertex.a = 1.0f;
 			ourVertex.tu = 0.0f; ourVertex.tv = 0.0f;
+
+			ourVertex.normalX = currentNormals.x;
+			ourVertex.normalY = currentNormals.y;
+			ourVertex.normalZ = currentNormals.z;
 
 			if (currentAIMesh->HasTextureCoords(0))
 			{

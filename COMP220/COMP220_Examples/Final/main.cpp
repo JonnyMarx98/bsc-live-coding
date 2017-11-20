@@ -74,7 +74,7 @@ int main(int argc, char* args[])
 	mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
 
 	// Camera Properties
-	vec3 cameraPosition = vec3(0.0f, 0.0f, -8.0f);
+	vec3 cameraPosition = vec3(0.0f, 8.0f, -10.0f);
 	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
 	vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
 	vec3 cameraDirection = vec3(0.0f);
@@ -88,10 +88,14 @@ int main(int argc, char* args[])
 
 	mat4 projectionMatrix = perspective(radians(90.0f), float(800 / 600), 0.1f, 100.0f);
 
+	//light
+	vec3 lightDirection = vec3(0.0f, 0.0f, -1.0f);
+	vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	GLuint programID = LoadShaders("textureVert.glsl", "textureFrag.glsl");
+	//material
+	vec4 diffuseMaterialColour = vec4(0.8f, 0.8f, 0.8f, 0.1f);
 
-	
+	GLuint programID = LoadShaders("lightingVert.glsl", "lightingFrag.glsl");
 
 	static const GLfloat fragColour[] = { 0.0f,1.0f,0.0f,1.0f };
 
@@ -101,8 +105,12 @@ int main(int argc, char* args[])
 	GLint viewMatrixLocation = glGetUniformLocation(programID, "viewMatrix");
 	GLint projectionMatrixLocation = glGetUniformLocation(programID, "projectionMatrix");
 	GLint textureLocation = glGetUniformLocation(programID, "baseTexture");
+	GLint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
+	GLint diffuseLightColourLocation = glGetUniformLocation(programID, "diffuseLightColour");
+	GLint diffuseMaterialColourLocation = glGetUniformLocation(programID, "diffuseMaterialColour");
 
-	SDL_ShowCursor(SDL_DISABLE);
+
+	//SDL_ShowCursor(SDL_DISABLE);
 	SDL_SetRelativeMouseMode(SDL_bool(SDL_ENABLE));
 
 	glEnable(GL_DEPTH_TEST);
@@ -158,10 +166,10 @@ int main(int argc, char* args[])
 					triangleRotation.y -= 0.2f;
 					break;
 				case SDLK_UP:
-					triangleRotation.x += 0.2f;
+					trianglePosition.z -= 0.1f;
 					break;
 				case SDLK_DOWN:
-					triangleRotation.x -= 0.2f;
+					triangleRotation.z += 0.1f;
 					break;
 
 
@@ -192,7 +200,7 @@ int main(int argc, char* args[])
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
-		glClearColor(1.0, 1.0, 1.0, 1.0);
+		glClearColor(1.0, 0.0, 0.0, 1.0);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -209,6 +217,10 @@ int main(int argc, char* args[])
 		glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
 		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
 		glUniform1i(textureLocation, 0);
+
+		glUniform3fv(lightDirectionLocation,1,value_ptr(lightDirection));
+		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+		glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
 
 		// Draw
 		for (Mesh* currentMesh : meshes)
