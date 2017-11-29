@@ -100,6 +100,54 @@ int main(int argc, char* args[])
 	vec4 ambientMaterialColour = vec4(0.1f, 0.1f, 0.1f, 1.0f);
 	float specularPower = 25.0f;
 
+	// Colour Buffer Texture
+	GLuint colourBufferID = createTexture(800, 600);
+
+	// Create Depth Buffer
+	GLuint depthRenderBufferID;
+	glGenRenderbuffers(1, &depthRenderBufferID);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBufferID);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 800, 600);
+
+	// Create Frame Buffer
+	GLuint frameBufferID;
+	glGenFramebuffers(1, &frameBufferID);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBufferID);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colourBufferID, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to create frame buffer for post processing", "Frame Buffer Error", NULL);
+	}
+
+	// create screen aligned quad
+	GLfloat screenVerts[] =
+	{
+		-1, -1,
+		1, -1,
+		-1, 1,
+		1, 1
+	};
+
+	GLuint screenQuadVBOID;
+	glGenBuffers(1, &screenQuadVBOID);
+	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBOID);
+	glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), screenVerts, GL_STATIC_DRAW);
+
+	GLuint screenVAO;
+	glGenVertexArrays(1, &screenVAO);
+	glBindVertexArray(screenVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBOID);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postTextureFrag.glsl");
+	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
+
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	GLuint programID = LoadShaders("lightingVert.glsl", "lightingFrag.glsl");
 
 	static const GLfloat fragColour[] = { 0.0f,1.0f,0.0f,1.0f };
@@ -213,7 +261,8 @@ int main(int argc, char* args[])
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
-		glClearColor(1.0, 0.0, 0.0, 1.0);
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -249,6 +298,23 @@ int main(int argc, char* args[])
 		{
 			currentMesh->render();
 		}
+		//glDisable(GL_DEPTH_TEST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Bind Post Processing Shaders
+		glUseProgram(postProcessingProgramID);
+
+		// Activate texture unit 0 for the colour buffer
+		glActiveTexture(GL_TEXTURE);
+		glBindTexture(GL_TEXTURE_2D, colourBufferID);
+		glUniform1i(texture0Location, 0);
+
+		// Draw!
+		glBindVertexArray(screenVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
 		SDL_GL_SwapWindow(window);
 
 	}
@@ -267,6 +333,13 @@ int main(int argc, char* args[])
 			iter++;
 		}
 	}
+
+	glDeleteProgram(postProcessingProgramID);
+	glDeleteVertexArrays(1, &screenVAO);
+	glDeleteBuffers(1, &screenQuadVBOID);
+	glDeleteFramebuffers(1, &frameBufferID);
+	glDeleteRenderbuffers(1, &depthRenderBufferID);
+	glDeleteTextures(1, &colourBufferID);
 
 	meshes.clear();
 
