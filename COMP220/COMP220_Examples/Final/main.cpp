@@ -91,9 +91,14 @@ int main(int argc, char* args[])
 	//light
 	vec3 lightDirection = vec3(0.0f, 0.0f, -1.0f);
 	vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	vec4 specularLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	vec4 ambientLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	//material
-	vec4 diffuseMaterialColour = vec4(0.8f, 0.8f, 0.8f, 0.1f);
+	vec4 diffuseMaterialColour = vec4(0.9f, 0.9f, 0.9f, 1.0f);
+	vec4 specularMaterialColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	vec4 ambientMaterialColour = vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	float specularPower = 25.0f;
 
 	GLuint programID = LoadShaders("lightingVert.glsl", "lightingFrag.glsl");
 
@@ -105,9 +110,17 @@ int main(int argc, char* args[])
 	GLint viewMatrixLocation = glGetUniformLocation(programID, "viewMatrix");
 	GLint projectionMatrixLocation = glGetUniformLocation(programID, "projectionMatrix");
 	GLint textureLocation = glGetUniformLocation(programID, "baseTexture");
+	GLint cameraPositionLocation = glGetUniformLocation(programID, "cameraPosition");
+
 	GLint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
+	GLint ambientLightColourLocation = glGetUniformLocation(programID, "ambientLightColour");
 	GLint diffuseLightColourLocation = glGetUniformLocation(programID, "diffuseLightColour");
+	GLint specularLightColourLocation = glGetUniformLocation(programID, "specularLightColour");
+
+	GLint ambientMaterialColourLocation = glGetUniformLocation(programID, "ambientMaterialColour");
 	GLint diffuseMaterialColourLocation = glGetUniformLocation(programID, "diffuseMaterialColour");
+	GLint specularMaterialColourLocation = glGetUniformLocation(programID, "specularMaterialColour");
+	GLint specularPowerLocation = glGetUniformLocation(programID, "specularPower");
 
 
 	//SDL_ShowCursor(SDL_DISABLE);
@@ -216,11 +229,20 @@ int main(int argc, char* args[])
 		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
 		glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
 		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
+
+		glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
+
 		glUniform1i(textureLocation, 0);
 
 		glUniform3fv(lightDirectionLocation,1,value_ptr(lightDirection));
 		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+		glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
+		glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
+
 		glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
+		glUniform4fv(specularMaterialColourLocation, 1, value_ptr(specularMaterialColour));
+		glUniform1f(specularPowerLocation, specularPower);
+		glUniform4fv(ambientMaterialColourLocation, 1, value_ptr(ambientMaterialColour));
 
 		// Draw
 		for (Mesh* currentMesh : meshes)
