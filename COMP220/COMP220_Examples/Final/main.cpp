@@ -143,7 +143,7 @@ int main(int argc, char* args[])
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postTextureFrag.glsl");
+	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postLessRed.glsl");
 	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -262,7 +262,7 @@ int main(int argc, char* args[])
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClearColor(1.0, 0.0, 1.0, 1.0);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
