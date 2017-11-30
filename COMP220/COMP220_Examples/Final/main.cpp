@@ -143,7 +143,7 @@ int main(int argc, char* args[])
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postLessRed.glsl");
+	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postSepia.glsl");
 	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -220,19 +220,6 @@ int main(int argc, char* args[])
 				case SDLK_ESCAPE:
 					running = false;
 					break;
-				case SDLK_RIGHT:
-					triangleRotation.y += 0.2f;
-					break;
-				case SDLK_LEFT:
-					triangleRotation.y -= 0.2f;
-					break;
-				case SDLK_UP:
-					trianglePosition.z -= 0.1f;
-					break;
-				case SDLK_DOWN:
-					triangleRotation.z += 0.1f;
-					break;
-
 
 				case SDLK_w:
 					FPScameraPos = cameraDirection * 0.2f;
@@ -262,7 +249,7 @@ int main(int argc, char* args[])
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
-		glClearColor(1.0, 0.0, 1.0, 1.0);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -360,3 +347,16 @@ int main(int argc, char* args[])
 
 	return 0;
 }
+
+//case SDLK_RIGHT:
+//triangleRotation.y += 0.2f;
+//break;
+//case SDLK_LEFT:
+//triangleRotation.y -= 0.2f;
+//break;
+//case SDLK_UP:
+//trianglePosition.z -= 0.1f;
+//break;
+//case SDLK_DOWN:
+//triangleRotation.z += 0.1f;
+//break;
