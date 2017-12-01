@@ -143,7 +143,7 @@ int main(int argc, char* args[])
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postSepia.glsl");
+	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postPinkEffect.glsl");
 	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
