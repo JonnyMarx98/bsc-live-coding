@@ -257,6 +257,7 @@ int main(int argc, char* args[])
 
 	btVector3 droidForce = btVector3(5, 10, 0);
 	btVector3 droidImpulse = btVector3(0, 4, -2);
+	btVector3 droidTorque = btVector3(0, 4, -2);
 	int InvertGravity = -10;
 
 #pragma endregion
@@ -329,7 +330,7 @@ int main(int argc, char* args[])
 					//Invert Gravity
 					InvertGravity *= -1;
 					dynamicsWorld->setGravity(btVector3(0.0, InvertGravity, 0.0));
-					std::cout << "G = " << InvertGravity;
+					std::cout << "G = " << InvertGravity << " ";
 					break;
 				case SDLK_LEFT:
 					//Apply a force
@@ -338,6 +339,10 @@ int main(int argc, char* args[])
 				case SDLK_DOWN:
 					//Apply an impulse
 					droidRigidBody->applyCentralImpulse(droidImpulse);
+					break;
+				case SDLK_UP:
+					//Apply an torque impulse
+					droidRigidBody->applyTorqueImpulse(droidTorque);
 					break;
 
 
