@@ -66,6 +66,11 @@ int main(int argc, char* args[])
 	vec3 triangleScale = vec3(0.1f, 0.1f, 0.1f);
 	vec3 triangleRotation = vec3(radians(-90.0f), 0.0f, 0.0f);
 
+	// Coffee transform
+	/*vec3 trianglePosition = vec3(0.0f, 0.0f, 35.0f);
+	vec3 triangleScale = vec3(0.7f, 0.7f, 0.7f);
+	vec3 triangleRotation = vec3(0.0f, radians(-90.0f), 0.0f);*/
+
 	
 	mat4 translationMatrix = translate(trianglePosition);
 	mat4 scaleMatrix = scale(triangleScale);

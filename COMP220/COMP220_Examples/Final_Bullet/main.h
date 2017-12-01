@@ -13,7 +13,8 @@
 #include <glm\gtx\transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
-#include "btBulletDynamicsCommon.h"
+#include <btBulletDynamicsCommon.h>
+#include <btBulletCollisionCommon.h>
 
 #include "vertex.h"
 #include "Shader.h"
