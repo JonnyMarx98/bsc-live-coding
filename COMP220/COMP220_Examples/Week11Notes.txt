@@ -1,0 +1,6 @@
+NOTES - WEEK 11 sesh
+
+CLASSES!!
+
+figure out how to not get values for shader every frame (the pre render function in gameobject).
+Only Init them once

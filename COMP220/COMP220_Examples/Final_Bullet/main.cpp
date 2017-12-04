@@ -62,14 +62,20 @@ int main(int argc, char* args[])
 	//unsigned int numberOfIndices = 0;
 	//loadModelFromFile("Tank1.FBX", vertexbuffer, elementbuffer, numberOfVerts, numberOfIndices);
 
-	std::vector<Mesh*> meshes;
+	/*std::vector<Mesh*> meshes;
 	loadMeshesFromFile("GNK_Droid.FBX", meshes);
 
-	GLuint textureID = loadTextureFromFile("GNK_BaseColor.png");
+	GLuint textureID = loadTextureFromFile("GNK_BaseColor.png");*/
 
-	vec3 objPosition = vec3(0.0f,10.0f,0.0f);
+	GameObject * droid = new GameObject();
+	droid->loadMeshes("GNK_Droid.FBX");
+	droid->loadDiffuseMap("GNK_BaseColor.png");
+	droid->setPosition(vec3(0.0f, 10.0f, 0.0f));
+	droid->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
+
+	/*vec3 objPosition = vec3(0.0f,10.0f,0.0f);
 	vec3 objScale = vec3(0.1f, 0.1f, 0.1f);
-	vec3 objRotation = vec3(radians(-90.0f), 0.0f, 0.0f);
+	vec3 objRotation = vec3(radians(-90.0f), 0.0f, 0.0f);*/
 
 	// Coffee transform
 	/*vec3 objPosition = vec3(0.0f, 0.0f, 35.0f);
@@ -77,11 +83,11 @@ int main(int argc, char* args[])
 	vec3 objRotation = vec3(0.0f, radians(-90.0f), 0.0f);*/
 
 	
-	mat4 translationMatrix = translate(objPosition);
+	/*mat4 translationMatrix = translate(objPosition);
 	mat4 scaleMatrix = scale(objScale);
 	mat4 rotationMatrix= rotate(objRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(objRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(objRotation.z, vec3(0.0f, 0.0f, 1.0f));
 
-	mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
+	mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;*/
 
 	// Camera Properties
 	vec3 cameraPosition = vec3(0.0f, 8.0f, -30.0f);
@@ -169,7 +175,7 @@ int main(int argc, char* args[])
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	GLuint programID = LoadShaders("lightingVert.glsl", "lightingFrag.glsl");
+	// GLuint programID = LoadShaders("lightingVert.glsl", "lightingFrag.glsl");
 
 	static const GLfloat fragColour[] = { 0.0f,1.0f,0.0f,1.0f };
 
@@ -177,7 +183,7 @@ int main(int argc, char* args[])
 
 #pragma region GetUniformLocations
 
-	GLint fragColourLocation = glGetUniformLocation(programID, "fragColour");
+	/*GLint fragColourLocation = glGetUniformLocation(programID, "fragColour");
 	GLint currentTimeLocation= glGetUniformLocation(programID, "time");
 	GLint modelMatrixLocation = glGetUniformLocation(programID, "modelMatrix");
 	GLint viewMatrixLocation = glGetUniformLocation(programID, "viewMatrix");
@@ -193,72 +199,72 @@ int main(int argc, char* args[])
 	GLint ambientMaterialColourLocation = glGetUniformLocation(programID, "ambientMaterialColour");
 	GLint diffuseMaterialColourLocation = glGetUniformLocation(programID, "diffuseMaterialColour");
 	GLint specularMaterialColourLocation = glGetUniformLocation(programID, "specularMaterialColour");
-	GLint specularPowerLocation = glGetUniformLocation(programID, "specularPower");
+	GLint specularPowerLocation = glGetUniformLocation(programID, "specularPower");*/
 
 #pragma endregion
 
 #pragma region BulletPhysics
 
-	///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	/////collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
+	//btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	/////use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	//btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
-	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
-	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
+	/////btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
+	//btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
 
-	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+	/////the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+	//btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
-	btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+	//btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));
-
-
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(2.), btScalar(50.)));
-	// Create Dynamic Objects
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0, -15, 0));
-
-	btScalar groundMass(0.);
-
-	btVector3 groundInertia(0, 0, 0);
-
-	//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-	btDefaultMotionState* groundMotionState = new btDefaultMotionState(groundTransform);
-	btRigidBody::btRigidBodyConstructionInfo groundRbInfo(groundMass, groundMotionState, groundShape, groundInertia);
-	btRigidBody* groundRigidBody = new btRigidBody(groundRbInfo);
-
-	//add the body to the dynamics world
-	dynamicsWorld->addRigidBody(groundRigidBody);
+	//dynamicsWorld->setGravity(btVector3(0, -10, 0));
 
 
-	btCollisionShape* droidCollisionShape = new btBoxShape(btVector3(2, 2, 2));
-	// Create Dynamic Objects
-	btTransform droidTransform;
-	droidTransform.setIdentity();
-	btScalar droidMass(1.f);
-	droidTransform.setOrigin(btVector3(objPosition.x, objPosition.y, objPosition.z));
+	//btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(2.), btScalar(50.)));
+	//// Create Dynamic Objects
+	//btTransform groundTransform;
+	//groundTransform.setIdentity();
+	//groundTransform.setOrigin(btVector3(0, -15, 0));
 
-	//rigidbody is dynamic if and only if mass is non zero, otherwise static
-	bool isDynamic = (droidMass != 0.f);
+	//btScalar groundMass(0.);
 
-	btVector3 droidInertia(0, 0, 0);
-	if (isDynamic)
-		droidCollisionShape->calculateLocalInertia(droidMass, droidInertia);
+	//btVector3 groundInertia(0, 0, 0);
 
-	btDefaultMotionState* droidMotionState = new btDefaultMotionState(droidTransform);
-	btRigidBody::btRigidBodyConstructionInfo droidRbInfo(droidMass, droidMotionState, droidCollisionShape, droidInertia);
-	btRigidBody* droidRigidBody = new btRigidBody(droidRbInfo);
+	////using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+	//btDefaultMotionState* groundMotionState = new btDefaultMotionState(groundTransform);
+	//btRigidBody::btRigidBodyConstructionInfo groundRbInfo(groundMass, groundMotionState, groundShape, groundInertia);
+	//btRigidBody* groundRigidBody = new btRigidBody(groundRbInfo);
 
-	dynamicsWorld->addRigidBody(droidRigidBody);
+	////add the body to the dynamics world
+	//dynamicsWorld->addRigidBody(groundRigidBody);
 
-	btVector3 droidForce = btVector3(5, 10, 0);
-	btVector3 droidImpulse = btVector3(0, 4, -2);
-	btVector3 droidTorque = btVector3(0, 4, -2);
-	int InvertGravity = -10;
+
+	//btCollisionShape* droidCollisionShape = new btBoxShape(btVector3(2, 2, 2));
+	//// Create Dynamic Objects
+	//btTransform droidTransform;
+	//droidTransform.setIdentity();
+	//btScalar droidMass(1.f);
+	//droidTransform.setOrigin(btVector3(objPosition.x, objPosition.y, objPosition.z));
+
+	////rigidbody is dynamic if and only if mass is non zero, otherwise static
+	//bool isDynamic = (droidMass != 0.f);
+
+	//btVector3 droidInertia(0, 0, 0);
+	//if (isDynamic)
+	//	droidCollisionShape->calculateLocalInertia(droidMass, droidInertia);
+
+	//btDefaultMotionState* droidMotionState = new btDefaultMotionState(droidTransform);
+	//btRigidBody::btRigidBodyConstructionInfo droidRbInfo(droidMass, droidMotionState, droidCollisionShape, droidInertia);
+	//btRigidBody* droidRigidBody = new btRigidBody(droidRbInfo);
+
+	//dynamicsWorld->addRigidBody(droidRigidBody);
+
+	//btVector3 droidForce = btVector3(5, 10, 0);
+	//btVector3 droidImpulse = btVector3(0, 4, -2);
+	//btVector3 droidTorque = btVector3(0, 4, -2);
+	//int InvertGravity = -10;
 
 #pragma endregion
 
@@ -326,24 +332,24 @@ int main(int argc, char* args[])
 					FPScameraPos = cross(cameraDirection, cameraUp) * 0.5f;
 					break;
 
-				case SDLK_SPACE:
-					//Invert Gravity
-					InvertGravity *= -1;
-					dynamicsWorld->setGravity(btVector3(0.0, InvertGravity, 0.0));
-					std::cout << "G = " << InvertGravity << " ";
-					break;
-				case SDLK_LEFT:
-					//Apply a force
-					droidRigidBody->applyCentralForce(droidForce*50);
-					break;
-				case SDLK_DOWN:
-					//Apply an impulse
-					droidRigidBody->applyCentralImpulse(droidImpulse);
-					break;
-				case SDLK_UP:
-					//Apply an torque impulse
-					droidRigidBody->applyTorqueImpulse(droidTorque);
-					break;
+				//case SDLK_SPACE:
+				//	//Invert Gravity
+				//	InvertGravity *= -1;
+				//	dynamicsWorld->setGravity(btVector3(0.0, InvertGravity, 0.0));
+				//	std::cout << "G = " << InvertGravity << " ";
+				//	break;
+				//case SDLK_LEFT:
+				//	//Apply a force
+				//	droidRigidBody->applyCentralForce(droidForce*50);
+				//	break;
+				//case SDLK_DOWN:
+				//	//Apply an impulse
+				//	droidRigidBody->applyCentralImpulse(droidImpulse);
+				//	break;
+				//case SDLK_UP:
+				//	//Apply an torque impulse
+				//	droidRigidBody->applyTorqueImpulse(droidTorque);
+				//	break;
 
 
 				}
@@ -358,18 +364,20 @@ int main(int argc, char* args[])
 
 		#pragma region Physics
 
-		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+		/*dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
 		droidTransform = droidRigidBody->getWorldTransform();
 		btVector3 droidOrigin = droidTransform.getOrigin();
 		btQuaternion droidRotation = droidTransform.getRotation();
 
-		objPosition = vec3(droidOrigin.getX(), droidOrigin.getY(), droidOrigin.getZ());
+		objPosition = vec3(droidOrigin.getX(), droidOrigin.getY(), droidOrigin.getZ());*/
 
-		translationMatrix = translate(objPosition);
+		droid->Update();
+
+		/*translationMatrix = translate(objPosition);
 		scaleMatrix = scale(objScale);
 		rotationMatrix = rotate(objRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(objRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(objRotation.z, vec3(0.0f, 0.0f, 1.0f));
-		modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
+		modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;*/
 		viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
 
 		#pragma endregion		
@@ -381,37 +389,62 @@ int main(int argc, char* args[])
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glActiveTexture(GL_TEXTURE);
-		glBindTexture(GL_TEXTURE_2D, textureID);
+		droid->preRender();
 
-		glUseProgram(programID);
+		GLuint currentShaderProgramID = droid->getShaderProgramID();
 
-		glUniform4fv(fragColourLocation, 1, fragColour);
-		glUniform1f(currentTimeLocation, (float)(currentTicks) / 1000.0f);
-		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
+		GLint viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
+		GLint projectionMatrixLocation = glGetUniformLocation(currentShaderProgramID, "projectionMatrix");
+
+		GLint cameraPositionLocation = glGetUniformLocation(currentShaderProgramID, "cameraPosition");
+
+		GLint lightDirectionLocation = glGetUniformLocation(currentShaderProgramID, "lightDirection");
+		GLint ambientLightColourLocation = glGetUniformLocation(currentShaderProgramID, "ambientLightColour");
+		GLint diffuseLightColourLocation = glGetUniformLocation(currentShaderProgramID, "diffuseLightColour");
+		GLint specularLightColourLocation = glGetUniformLocation(currentShaderProgramID, "specularLightColour");
+
 		glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
 		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
-
 		glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
-
-		glUniform1i(textureLocation, 0);
-
 		glUniform3fv(lightDirectionLocation,1,value_ptr(lightDirection));
 		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
 		glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
 		glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
 
-		glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
-		glUniform4fv(specularMaterialColourLocation, 1, value_ptr(specularMaterialColour));
-		glUniform1f(specularPowerLocation, specularPower);
-		glUniform4fv(ambientMaterialColourLocation, 1, value_ptr(ambientMaterialColour));
+		droid->Render();
 
-		// Draw
-		for (Mesh* currentMesh : meshes)
-		{
-			currentMesh->render();
-		}
+		//glActiveTexture(GL_TEXTURE);
+		//glBindTexture(GL_TEXTURE_2D, textureID);
+
+		//glUseProgram(programID);
+
+		//glUniform4fv(fragColourLocation, 1, fragColour);
+		//glUniform1f(currentTimeLocation, (float)(currentTicks) / 1000.0f);
+		//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
+		//glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
+		//glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
+
+		//glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
+
+		//glUniform1i(textureLocation, 0);
+
+		//glUniform3fv(lightDirectionLocation,1,value_ptr(lightDirection));
+		//glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+		//glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
+		//glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
+
+		//glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
+		//glUniform4fv(specularMaterialColourLocation, 1, value_ptr(specularMaterialColour));
+		//glUniform1f(specularPowerLocation, specularPower);
+		//glUniform4fv(ambientMaterialColourLocation, 1, value_ptr(ambientMaterialColour));
+
+		//// Draw
+		//for (Mesh* currentMesh : meshes)
+		//{
+		//	currentMesh->render();
+		//}
 		//glDisable(GL_DEPTH_TEST);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -436,32 +469,32 @@ int main(int argc, char* args[])
 
 #pragma region GarbageCollection/Quit
 
-	dynamicsWorld->removeRigidBody(droidRigidBody);
-	delete droidCollisionShape;
-	delete droidRigidBody->getMotionState();
-	delete droidRigidBody;
+	//dynamicsWorld->removeRigidBody(droidRigidBody);
+	//delete droidCollisionShape;
+	//delete droidRigidBody->getMotionState();
+	//delete droidRigidBody;
 
-	dynamicsWorld->removeRigidBody(groundRigidBody);
-	// delete ground
-	delete groundShape;
-	delete groundRigidBody->getMotionState();
-	delete groundRigidBody;
+	//dynamicsWorld->removeRigidBody(groundRigidBody);
+	//// delete ground
+	//delete groundShape;
+	//delete groundRigidBody->getMotionState();
+	//delete groundRigidBody;
 
-	//delete dynamics world
-	delete dynamicsWorld;
+	////delete dynamics world
+	//delete dynamicsWorld;
 
-	//delete solver
-	delete solver;
+	////delete solver
+	//delete solver;
 
-	//delete broadphase
-	delete overlappingPairCache;
+	////delete broadphase
+	//delete overlappingPairCache;
 
-	//delete dispatcher
-	delete dispatcher;
+	////delete dispatcher
+	//delete dispatcher;
 
-	delete collisionConfiguration;
+	//delete collisionConfiguration;
 
-	auto iter = meshes.begin();
+	/*auto iter = meshes.begin();
 	while (iter != meshes.end())
 	{
 		if ((*iter))
@@ -474,7 +507,7 @@ int main(int argc, char* args[])
 		{
 			iter++;
 		}
-	}
+	}*/
 
 	glDeleteProgram(postProcessingProgramID);
 	glDeleteVertexArrays(1, &screenVAO);
@@ -483,10 +516,16 @@ int main(int argc, char* args[])
 	glDeleteRenderbuffers(1, &depthRenderBufferID);
 	glDeleteTextures(1, &colourBufferID);
 
-	meshes.clear();
+	/*meshes.clear();
 
 	glDeleteProgram(programID);
-	glDeleteTextures(1, &textureID);
+	glDeleteTextures(1, &textureID);*/
+	if (droid)
+	{
+		droid->destroy();
+		delete droid;
+		droid = nullptr;
+	}
 
 	//Delete context
 	SDL_GL_DeleteContext(GL_Context);
@@ -504,16 +543,3 @@ int main(int argc, char* args[])
 
 	return 0;
 }
-
-//case SDLK_RIGHT:
-//objRotation.y += 0.2f;
-//break;
-//case SDLK_LEFT:
-//objRotation.y -= 0.2f;
-//break;
-//case SDLK_UP:
-//objPosition.z -= 0.1f;
-//break;
-//case SDLK_DOWN:
-//objRotation.z += 0.1f;
-//break;
