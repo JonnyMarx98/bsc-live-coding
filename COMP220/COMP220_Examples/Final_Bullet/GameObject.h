@@ -27,7 +27,7 @@ public:
 			return  m_Position;
 		};
 		// Get/Set Scale
-		void setScale(const glm::vec3& scale)
+		void setScale(glm::vec3& scale)
 		{
 			m_Scale = scale;
 		};
@@ -36,7 +36,7 @@ public:
 			return  m_Scale;
 		};
 		// Get/Set Rotation
-		void setRotation(const glm::vec3& rotation)
+		void setRotation(glm::vec3& rotation)
 		{
 			m_Rotation = rotation;
 		};

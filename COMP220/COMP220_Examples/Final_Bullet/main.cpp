@@ -70,8 +70,18 @@ int main(int argc, char* args[])
 	GameObject * droid = new GameObject();
 	droid->loadMeshes("GNK_Droid.FBX");
 	droid->loadDiffuseMap("GNK_BaseColor.png");
-	droid->setPosition(vec3(0.0f, 10.0f, 0.0f));
+	droid->setPosition(vec3(0.0f, 2.0f, 0.0f));
+	droid->setScale(vec3(0.1f, 0.1f, 0.1f));
+	droid->setRotation(vec3(radians(-90.0f), 0.0f, 0.0f));
 	droid->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
+
+	GameObject * coffee = new GameObject();
+	coffee->loadMeshes("Coffee.FBX");
+	coffee->loadDiffuseMap("Coffee.tga");
+	coffee->setPosition(vec3(0.0f, 0.0f, 5.0f));
+	coffee->setScale(vec3(0.3f, 0.3f, 0.3f));
+	coffee->setRotation(vec3(0.0f, radians(-90.0f), 0.0f));
+	coffee->loadShaderProgram("textureVert.glsl", "textureFrag.glsl");
 
 	/*vec3 objPosition = vec3(0.0f,10.0f,0.0f);
 	vec3 objScale = vec3(0.1f, 0.1f, 0.1f);
@@ -170,7 +180,7 @@ int main(int argc, char* args[])
 
 #pragma region Load Shaders
 
-	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postPinkEffect.glsl");
+	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postSepia.glsl");
 	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -205,66 +215,67 @@ int main(int argc, char* args[])
 
 #pragma region BulletPhysics
 
-	/////collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
-	//btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
-	/////use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	//btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
-	/////btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
-	//btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
+	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
+	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
 
-	/////the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	//btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
-	//btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+	btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
-	//dynamicsWorld->setGravity(btVector3(0, -10, 0));
-
-
-	//btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(2.), btScalar(50.)));
-	//// Create Dynamic Objects
-	//btTransform groundTransform;
-	//groundTransform.setIdentity();
-	//groundTransform.setOrigin(btVector3(0, -15, 0));
-
-	//btScalar groundMass(0.);
-
-	//btVector3 groundInertia(0, 0, 0);
-
-	////using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-	//btDefaultMotionState* groundMotionState = new btDefaultMotionState(groundTransform);
-	//btRigidBody::btRigidBodyConstructionInfo groundRbInfo(groundMass, groundMotionState, groundShape, groundInertia);
-	//btRigidBody* groundRigidBody = new btRigidBody(groundRbInfo);
-
-	////add the body to the dynamics world
-	//dynamicsWorld->addRigidBody(groundRigidBody);
+	dynamicsWorld->setGravity(btVector3(0, -10, 0));
 
 
-	//btCollisionShape* droidCollisionShape = new btBoxShape(btVector3(2, 2, 2));
-	//// Create Dynamic Objects
-	//btTransform droidTransform;
-	//droidTransform.setIdentity();
-	//btScalar droidMass(1.f);
-	//droidTransform.setOrigin(btVector3(objPosition.x, objPosition.y, objPosition.z));
+	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(2.), btScalar(50.)));
+	// Create Dynamic Objects
+	btTransform groundTransform;
+	groundTransform.setIdentity();
+	groundTransform.setOrigin(btVector3(0, -15, 0));
 
-	////rigidbody is dynamic if and only if mass is non zero, otherwise static
-	//bool isDynamic = (droidMass != 0.f);
+	btScalar groundMass(0.);
 
-	//btVector3 droidInertia(0, 0, 0);
-	//if (isDynamic)
-	//	droidCollisionShape->calculateLocalInertia(droidMass, droidInertia);
+	btVector3 groundInertia(0, 0, 0);
 
-	//btDefaultMotionState* droidMotionState = new btDefaultMotionState(droidTransform);
-	//btRigidBody::btRigidBodyConstructionInfo droidRbInfo(droidMass, droidMotionState, droidCollisionShape, droidInertia);
-	//btRigidBody* droidRigidBody = new btRigidBody(droidRbInfo);
+	//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+	btDefaultMotionState* groundMotionState = new btDefaultMotionState(groundTransform);
+	btRigidBody::btRigidBodyConstructionInfo groundRbInfo(groundMass, groundMotionState, groundShape, groundInertia);
+	btRigidBody* groundRigidBody = new btRigidBody(groundRbInfo);
 
-	//dynamicsWorld->addRigidBody(droidRigidBody);
+	//add the body to the dynamics world
+	dynamicsWorld->addRigidBody(groundRigidBody);
 
-	//btVector3 droidForce = btVector3(5, 10, 0);
-	//btVector3 droidImpulse = btVector3(0, 4, -2);
-	//btVector3 droidTorque = btVector3(0, 4, -2);
-	//int InvertGravity = -10;
+
+	btCollisionShape* droidCollisionShape = new btBoxShape(btVector3(2, 2, 2));
+	// Create Dynamic Objects
+	btTransform droidTransform;
+	droidTransform.setIdentity();
+	btScalar droidMass(1.f);
+
+	//droidTransform.setOrigin(btVector3(droid->getPosition.x, droid->getPosition.y, droid->getPosition.z));
+
+	//rigidbody is dynamic if and only if mass is non zero, otherwise static
+	bool isDynamic = (droidMass != 0.f);
+
+	btVector3 droidInertia(0, 0, 0);
+	if (isDynamic)
+		droidCollisionShape->calculateLocalInertia(droidMass, droidInertia);
+
+	btDefaultMotionState* droidMotionState = new btDefaultMotionState(droidTransform);
+	btRigidBody::btRigidBodyConstructionInfo droidRbInfo(droidMass, droidMotionState, droidCollisionShape, droidInertia);
+	btRigidBody* droidRigidBody = new btRigidBody(droidRbInfo);
+
+	dynamicsWorld->addRigidBody(droidRigidBody);
+
+	btVector3 droidForce = btVector3(5, 10, 0);
+	btVector3 droidImpulse = btVector3(0, 4, -2);
+	btVector3 droidTorque = btVector3(0, 4, -2);
+	int InvertGravity = -10;
 
 #pragma endregion
 
@@ -332,24 +343,28 @@ int main(int argc, char* args[])
 					FPScameraPos = cross(cameraDirection, cameraUp) * 0.5f;
 					break;
 
-				//case SDLK_SPACE:
-				//	//Invert Gravity
-				//	InvertGravity *= -1;
-				//	dynamicsWorld->setGravity(btVector3(0.0, InvertGravity, 0.0));
-				//	std::cout << "G = " << InvertGravity << " ";
-				//	break;
-				//case SDLK_LEFT:
-				//	//Apply a force
-				//	droidRigidBody->applyCentralForce(droidForce*50);
-				//	break;
-				//case SDLK_DOWN:
-				//	//Apply an impulse
-				//	droidRigidBody->applyCentralImpulse(droidImpulse);
-				//	break;
-				//case SDLK_UP:
-				//	//Apply an torque impulse
-				//	droidRigidBody->applyTorqueImpulse(droidTorque);
-				//	break;
+				case SDLK_SPACE:
+					//Invert Gravity
+					InvertGravity *= -1;
+					dynamicsWorld->setGravity(btVector3(0.0, InvertGravity, 0.0));
+					std::cout << "G = " << InvertGravity << " ";
+					break;
+				case SDLK_LEFT:
+					//Apply a force
+					droidRigidBody->applyCentralForce(droidForce*50);
+					break;
+				case SDLK_RIGHT:
+					//Apply a force
+					droidRigidBody->applyCentralForce(btVector3(-5, 10, 0) * 50);
+					break;
+				case SDLK_DOWN:
+					//Apply an impulse
+					droidRigidBody->applyCentralImpulse(droidImpulse);
+					break;
+				case SDLK_UP:
+					//Apply an torque impulse
+					droidRigidBody->applyTorqueImpulse(droidTorque);
+					break;
 
 
 				}
@@ -364,20 +379,19 @@ int main(int argc, char* args[])
 
 		#pragma region Physics
 
-		/*dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
 		droidTransform = droidRigidBody->getWorldTransform();
 		btVector3 droidOrigin = droidTransform.getOrigin();
 		btQuaternion droidRotation = droidTransform.getRotation();
 
-		objPosition = vec3(droidOrigin.getX(), droidOrigin.getY(), droidOrigin.getZ());*/
+		droid->setPosition(vec3(droidOrigin.getX(), droidOrigin.getY(), droidOrigin.getZ()));
 
-		droid->Update();
+		/*mat4 translationMatrix = glm::translate(droid->getPosition);
+		mat4 scaleMatrix = scale(droid->getScale);
+		mat4 rotationMatrix = rotate(droid->getRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(droid->getRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(droid->getRotation.z, vec3(0.0f, 0.0f, 1.0f));
+		mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;*/
 
-		/*translationMatrix = translate(objPosition);
-		scaleMatrix = scale(objScale);
-		rotationMatrix = rotate(objRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(objRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(objRotation.z, vec3(0.0f, 0.0f, 1.0f));
-		modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;*/
 		viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
 
 		#pragma endregion		
@@ -386,11 +400,11 @@ int main(int argc, char* args[])
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// DROID
+		droid->Update();
 		droid->preRender();
-
 		GLuint currentShaderProgramID = droid->getShaderProgramID();
 
 		GLint viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
@@ -410,8 +424,31 @@ int main(int argc, char* args[])
 		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
 		glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
 		glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
-
 		droid->Render();
+
+		// COFFEE
+		coffee->Update();
+		coffee->preRender();
+		currentShaderProgramID = coffee->getShaderProgramID();
+
+		viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
+		projectionMatrixLocation = glGetUniformLocation(currentShaderProgramID, "projectionMatrix");
+
+		cameraPositionLocation = glGetUniformLocation(currentShaderProgramID, "cameraPosition");
+
+		lightDirectionLocation = glGetUniformLocation(currentShaderProgramID, "lightDirection");
+		ambientLightColourLocation = glGetUniformLocation(currentShaderProgramID, "ambientLightColour");
+		diffuseLightColourLocation = glGetUniformLocation(currentShaderProgramID, "diffuseLightColour");
+		specularLightColourLocation = glGetUniformLocation(currentShaderProgramID, "specularLightColour");
+
+		glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
+		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
+		glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
+		glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
+		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+		glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
+		glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
+		coffee->Render();
 
 		//glActiveTexture(GL_TEXTURE);
 		//glBindTexture(GL_TEXTURE_2D, textureID);
@@ -444,6 +481,7 @@ int main(int argc, char* args[])
 		//	currentMesh->render();
 		//}
 		//glDisable(GL_DEPTH_TEST);
+		
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -509,7 +547,7 @@ int main(int argc, char* args[])
 		}
 	}*/
 
-	glDeleteProgram(postProcessingProgramID);
+	//glDeleteProgram(postProcessingProgramID);
 	glDeleteVertexArrays(1, &screenVAO);
 	glDeleteBuffers(1, &screenQuadVBOID);
 	glDeleteFramebuffers(1, &frameBufferID);

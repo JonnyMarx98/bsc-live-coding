@@ -22,4 +22,3 @@ void main()
 	colour = mix(textureColour, Sepia(textureColour), 1.0f);
 }
 
-// It doesn't look like sepia, but it looks cool :D

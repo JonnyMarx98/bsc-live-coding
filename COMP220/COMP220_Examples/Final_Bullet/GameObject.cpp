@@ -44,6 +44,7 @@ void GameObject::destroy()
 {
 	glDeleteTextures(1, &m_DiffuseMapID);
 	glDeleteProgram(m_ShaderProgramID);
+	
 
 	auto iter = m_Meshes.begin();
 	while (iter != m_Meshes.end())
@@ -66,10 +67,10 @@ void GameObject::Update()
 	glm::mat4 translationMatrix = glm::translate(m_Position);
 	glm::mat4 scaleMatrix = glm::scale(m_Scale);
 	glm::mat4 rotationMatrix = glm::rotate(m_Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f))*
-		glm::rotate(m_Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f))*
-		glm::rotate(m_Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+							   glm::rotate(m_Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f))*
+							   glm::rotate(m_Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
-	glm::mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
+	m_ModelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
 }
 
 void GameObject::preRender()
