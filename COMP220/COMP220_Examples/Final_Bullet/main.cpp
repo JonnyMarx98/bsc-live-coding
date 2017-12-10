@@ -58,6 +58,41 @@ int main(int argc, char* args[])
 #pragma endregion
 
 #pragma region Mesh Properties
+
+	// GameObject list
+	std::vector<GameObject*> gameObjectList;
+
+	for (int i = 0; i < 5; i++)
+	{
+		// Create GameObject
+		GameObject * droid = new GameObject();
+		droid->loadMeshes("GNK_Droid.FBX");
+		droid->loadDiffuseMap("GNK_BaseColor.png");
+		droid->setPosition(vec3(0.0f, (float)i*11.5f, 0.0f));
+		droid->setScale(vec3(0.1f, 0.1f, 0.1f));
+		droid->setRotation(vec3(radians(-90.0f), 0.0f, 0.0f));
+		droid->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
+		gameObjectList.push_back(droid);
+	}
+		
+	/*droid = new GameObject();
+	droid->loadMeshes("GNK_Droid.FBX");
+	droid->loadDiffuseMap("GNK_BaseColor.png");
+	droid->setPosition(vec3(0.0f, 2.0f, 0.0f));
+	droid->setScale(vec3(0.1f, 0.1f, 0.1f));
+	droid->setRotation(vec3(radians(-90.0f), 0.0f, 0.0f));
+	droid->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
+	gameObjectList.push_back(droid);*/
+
+	GameObject * coffee = new GameObject();
+	coffee->loadMeshes("Coffee.FBX");
+	coffee->loadDiffuseMap("Coffee.tga");
+	coffee->setPosition(vec3(0.0f, 0.0f, 5.0f));
+	coffee->setScale(vec3(0.3f, 0.3f, 0.3f));
+	coffee->setRotation(vec3(0.0f, radians(-90.0f), 0.0f));
+	coffee->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
+	gameObjectList.push_back(coffee);
+
 	//unsigned int numberOfVerts = 0;
 	//unsigned int numberOfIndices = 0;
 	//loadModelFromFile("Tank1.FBX", vertexbuffer, elementbuffer, numberOfVerts, numberOfIndices);
@@ -66,22 +101,6 @@ int main(int argc, char* args[])
 	loadMeshesFromFile("GNK_Droid.FBX", meshes);
 
 	GLuint textureID = loadTextureFromFile("GNK_BaseColor.png");*/
-
-	GameObject * droid = new GameObject();
-	droid->loadMeshes("GNK_Droid.FBX");
-	droid->loadDiffuseMap("GNK_BaseColor.png");
-	droid->setPosition(vec3(0.0f, 2.0f, 0.0f));
-	droid->setScale(vec3(0.1f, 0.1f, 0.1f));
-	droid->setRotation(vec3(radians(-90.0f), 0.0f, 0.0f));
-	droid->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
-
-	GameObject * coffee = new GameObject();
-	coffee->loadMeshes("Coffee.FBX");
-	coffee->loadDiffuseMap("Coffee.tga");
-	coffee->setPosition(vec3(0.0f, 0.0f, 5.0f));
-	coffee->setScale(vec3(0.3f, 0.3f, 0.3f));
-	coffee->setRotation(vec3(0.0f, radians(-90.0f), 0.0f));
-	coffee->loadShaderProgram("textureVert.glsl", "textureFrag.glsl");
 
 	/*vec3 objPosition = vec3(0.0f,10.0f,0.0f);
 	vec3 objScale = vec3(0.1f, 0.1f, 0.1f);
@@ -107,11 +126,9 @@ int main(int argc, char* args[])
 	vec3 FPScameraPos = vec3(0.0f);	
 	float CameraX = 0.0f;
 	float CameraY = 0.0f;
-	float CameraDistance = (float)(cameraTarget - cameraPosition).length();
-	
+	float CameraDistance = (float)(cameraTarget - cameraPosition).length();	
 
 	mat4 viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
-
 	mat4 projectionMatrix = perspective(radians(90.0f), float(800 / 600), 0.1f, 100.0f);
 #pragma endregion
 
@@ -124,10 +141,10 @@ int main(int argc, char* args[])
 	vec4 ambientLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	//material
-	vec4 diffuseMaterialColour = vec4(0.9f, 0.9f, 0.9f, 1.0f);
+	/*vec4 diffuseMaterialColour = vec4(0.9f, 0.9f, 0.9f, 1.0f);
 	vec4 specularMaterialColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	vec4 ambientMaterialColour = vec4(0.1f, 0.1f, 0.1f, 1.0f);
-	float specularPower = 25.0f;
+	float specularPower = 25.0f;*/
 
 #pragma endregion
 
@@ -180,7 +197,7 @@ int main(int argc, char* args[])
 
 #pragma region Load Shaders
 
-	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postSepia.glsl");
+	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postTextureFrag.glsl");
 	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -249,7 +266,6 @@ int main(int argc, char* args[])
 
 	//add the body to the dynamics world
 	dynamicsWorld->addRigidBody(groundRigidBody);
-
 
 	btCollisionShape* droidCollisionShape = new btBoxShape(btVector3(2, 2, 2));
 	// Create Dynamic Objects
@@ -385,7 +401,7 @@ int main(int argc, char* args[])
 		btVector3 droidOrigin = droidTransform.getOrigin();
 		btQuaternion droidRotation = droidTransform.getRotation();
 
-		droid->setPosition(vec3(droidOrigin.getX(), droidOrigin.getY(), droidOrigin.getZ()));
+		//droid->setPosition(vec3(droidOrigin.getX(), droidOrigin.getY(), droidOrigin.getZ()));
 
 		/*mat4 translationMatrix = glm::translate(droid->getPosition);
 		mat4 scaleMatrix = scale(droid->getScale);
@@ -403,9 +419,39 @@ int main(int argc, char* args[])
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// DROID
-		droid->Update();
-		droid->preRender();
-		GLuint currentShaderProgramID = droid->getShaderProgramID();
+		//droid->Update();
+		for (GameObject * pObj : gameObjectList)
+		{
+			pObj->Update();
+		}
+
+		//droid->preRender();
+		for (GameObject * pObj : gameObjectList)
+		{
+			pObj->preRender();
+			GLuint currentShaderProgramID = pObj->getShaderProgramID();
+
+			GLint viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
+			GLint projectionMatrixLocation = glGetUniformLocation(currentShaderProgramID, "projectionMatrix");
+
+			GLint cameraPositionLocation = glGetUniformLocation(currentShaderProgramID, "cameraPosition");
+
+			GLint lightDirectionLocation = glGetUniformLocation(currentShaderProgramID, "lightDirection");
+			GLint ambientLightColourLocation = glGetUniformLocation(currentShaderProgramID, "ambientLightColour");
+			GLint diffuseLightColourLocation = glGetUniformLocation(currentShaderProgramID, "diffuseLightColour");
+			GLint specularLightColourLocation = glGetUniformLocation(currentShaderProgramID, "specularLightColour");
+
+			glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
+			glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
+			glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
+			glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
+			glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
+			glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
+			glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
+			pObj->Render();
+		}
+
+		/*GLuint currentShaderProgramID = droid->getShaderProgramID();
 
 		GLint viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
 		GLint projectionMatrixLocation = glGetUniformLocation(currentShaderProgramID, "projectionMatrix");
@@ -424,10 +470,10 @@ int main(int argc, char* args[])
 		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
 		glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
 		glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
-		droid->Render();
+		droid->Render();*/
 
 		// COFFEE
-		coffee->Update();
+		/*coffee->Update();
 		coffee->preRender();
 		currentShaderProgramID = coffee->getShaderProgramID();
 
@@ -448,7 +494,7 @@ int main(int argc, char* args[])
 		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
 		glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
 		glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
-		coffee->Render();
+		coffee->Render();*/
 
 		//glActiveTexture(GL_TEXTURE);
 		//glBindTexture(GL_TEXTURE_2D, textureID);
@@ -547,7 +593,17 @@ int main(int argc, char* args[])
 		}
 	}*/
 
-	//glDeleteProgram(postProcessingProgramID);
+	auto gameObjectIter = gameObjectList.begin();
+	while (gameObjectIter != gameObjectList.end())
+	{
+		if ((*gameObjectIter))
+		{
+			(*gameObjectIter)->destroy();
+			delete (*gameObjectIter);
+			gameObjectIter = gameObjectList.erase(gameObjectIter);
+		}
+	}
+	glDeleteProgram(postProcessingProgramID);
 	glDeleteVertexArrays(1, &screenVAO);
 	glDeleteBuffers(1, &screenQuadVBOID);
 	glDeleteFramebuffers(1, &frameBufferID);
@@ -558,13 +614,13 @@ int main(int argc, char* args[])
 
 	glDeleteProgram(programID);
 	glDeleteTextures(1, &textureID);*/
-	if (droid)
+	/*if (droid)
 	{
 		droid->destroy();
 		delete droid;
 		droid = nullptr;
 	}
-
+*/
 	//Delete context
 	SDL_GL_DeleteContext(GL_Context);
 
