@@ -62,7 +62,7 @@ int main(int argc, char* args[])
 	// GameObject list
 	std::vector<GameObject*> gameObjectList;
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		// Create GameObject
 		GameObject * droid = new GameObject();
@@ -87,7 +87,7 @@ int main(int argc, char* args[])
 	GameObject * coffee = new GameObject();
 	coffee->loadMeshes("Coffee.FBX");
 	coffee->loadDiffuseMap("Coffee.tga");
-	coffee->setPosition(vec3(0.0f, 0.0f, 5.0f));
+	coffee->setPosition(vec3(2.0f, 15.0f, 5.0f));
 	coffee->setScale(vec3(0.3f, 0.3f, 0.3f));
 	coffee->setRotation(vec3(0.0f, radians(-90.0f), 0.0f));
 	coffee->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
@@ -266,31 +266,31 @@ int main(int argc, char* args[])
 
 	//add the body to the dynamics world
 	dynamicsWorld->addRigidBody(groundRigidBody);
-
-	btCollisionShape* droidCollisionShape = new btBoxShape(btVector3(2, 2, 2));
+	
+	btCollisionShape* coffeeCollisionShape = new btBoxShape(btVector3(2, 2, 2));
 	// Create Dynamic Objects
-	btTransform droidTransform;
-	droidTransform.setIdentity();
-	btScalar droidMass(1.f);
+	btTransform coffeeTransform;
+	coffeeTransform.setIdentity();
+	btScalar coffeeMass(1.f);
 
 	//droidTransform.setOrigin(btVector3(droid->getPosition.x, droid->getPosition.y, droid->getPosition.z));
 
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
-	bool isDynamic = (droidMass != 0.f);
+	bool isDynamic = (coffeeMass != 0.f);
 
-	btVector3 droidInertia(0, 0, 0);
+	btVector3 coffeeInertia(0, 0, 0);
 	if (isDynamic)
-		droidCollisionShape->calculateLocalInertia(droidMass, droidInertia);
+		coffeeCollisionShape->calculateLocalInertia(coffeeMass, coffeeInertia);
 
-	btDefaultMotionState* droidMotionState = new btDefaultMotionState(droidTransform);
-	btRigidBody::btRigidBodyConstructionInfo droidRbInfo(droidMass, droidMotionState, droidCollisionShape, droidInertia);
-	btRigidBody* droidRigidBody = new btRigidBody(droidRbInfo);
+	btDefaultMotionState* coffeeMotionState = new btDefaultMotionState(coffeeTransform);
+	btRigidBody::btRigidBodyConstructionInfo coffeeRbInfo(coffeeMass, coffeeMotionState, coffeeCollisionShape, coffeeInertia);
+	btRigidBody* coffeeRigidBody = new btRigidBody(coffeeRbInfo);
 
-	dynamicsWorld->addRigidBody(droidRigidBody);
+	dynamicsWorld->addRigidBody(coffeeRigidBody);
 
-	btVector3 droidForce = btVector3(5, 10, 0);
-	btVector3 droidImpulse = btVector3(0, 4, -2);
-	btVector3 droidTorque = btVector3(0, 4, -2);
+	btVector3 coffeeForce = btVector3(5, 10, 0);
+	btVector3 coffeeImpulse = btVector3(0, 4, -2);
+	btVector3 coffeeTorque = btVector3(0, 4, -2);
 	int InvertGravity = -10;
 
 #pragma endregion
@@ -367,19 +367,20 @@ int main(int argc, char* args[])
 					break;
 				case SDLK_LEFT:
 					//Apply a force
-					droidRigidBody->applyCentralForce(droidForce*50);
+					coffeeRigidBody->applyCentralForce(coffeeForce);
 					break;
 				case SDLK_RIGHT:
 					//Apply a force
-					droidRigidBody->applyCentralForce(btVector3(-5, 10, 0) * 50);
+					coffeeRigidBody->applyCentralForce(btVector3(-5, 10, 0) * 50);
 					break;
 				case SDLK_DOWN:
 					//Apply an impulse
-					droidRigidBody->applyCentralImpulse(droidImpulse);
+					coffeeRigidBody->applyCentralImpulse(coffeeImpulse);
+					printf("J");
 					break;
 				case SDLK_UP:
 					//Apply an torque impulse
-					droidRigidBody->applyTorqueImpulse(droidTorque);
+					coffeeRigidBody->applyTorqueImpulse(coffeeTorque);
 					break;
 
 
@@ -395,20 +396,33 @@ int main(int argc, char* args[])
 
 		#pragma region Physics
 
-		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+		dynamicsWorld->stepSimulation(10.0f / 60.0f, 1);
 
-		droidTransform = droidRigidBody->getWorldTransform();
-		btVector3 droidOrigin = droidTransform.getOrigin();
-		btQuaternion droidRotation = droidTransform.getRotation();
+		coffeeTransform = coffeeRigidBody->getWorldTransform();
+		btVector3 coffeeOrigin = coffeeTransform.getOrigin();
+		btQuaternion coffeeRotation = coffeeTransform.getRotation();
 
-		//droid->setPosition(vec3(droidOrigin.getX(), droidOrigin.getY(), droidOrigin.getZ()));
+		coffee->setPosition(vec3(coffeeOrigin.getX(), coffeeOrigin.getY(), coffeeOrigin.getZ()));
+		coffee->setRotation(vec3(coffeeRotation.getX(), coffeeRotation.getY(), coffeeRotation.getZ()));
 
-		/*mat4 translationMatrix = glm::translate(droid->getPosition);
-		mat4 scaleMatrix = scale(droid->getScale);
-		mat4 rotationMatrix = rotate(droid->getRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(droid->getRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(droid->getRotation.z, vec3(0.0f, 0.0f, 1.0f));
-		mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;*/
+		//mat4 translationMatrix = coffee->getPosition;
+		//mat4 scaleMatrix = coffee->getScale;
+		//mat4 rotationMatrix = coffee.get //(coffee->getRotation.x, vec3(1.0f, 0.0f, 0.0f))*(coffee->getRotation.y, vec3(0.0f, 1.0f, 0.0f))*(coffee->getRotation.z, vec3(0.0f, 0.0f, 1.0f));
+		//mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
 
 		viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
+
+		// old code
+		/*btTransform trans;
+		fallRigidBody->getMotionState()->getWorldTransform(trans);
+		btVector3 rigidBodyPos = trans.getOrigin();
+		objectPosition = vec3(rigidBodyPos.x(), rigidBodyPos.y(), rigidBodyPos.z());
+
+		mat4 translationMatrix = translate(objectPosition);
+		mat4 scaleMatrix = scale(objectScale);
+		mat4 rotationMatrix = rotate(objectRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(objectRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(objectRotation.z, vec3(0.0f, 0.0f, 1.0f));*/
+
+
 
 		#pragma endregion		
 
