@@ -118,8 +118,10 @@ int main(int argc, char* args[])
 
 	mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;*/
 
+	Camera * camera = new Camera();
+
 	// Camera Properties
-	vec3 cameraPosition = vec3(0.0f, 8.0f, -30.0f);
+	/*vec3 cameraPosition = vec3(0.0f, 8.0f, -30.0f);
 	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
 	vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
 	vec3 cameraDirection = vec3(0.0f);
@@ -129,7 +131,7 @@ int main(int argc, char* args[])
 	float CameraDistance = (float)(cameraTarget - cameraPosition).length();	
 
 	mat4 viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
-	mat4 projectionMatrix = perspective(radians(90.0f), float(800 / 600), 0.1f, 100.0f);
+	mat4 projectionMatrix = perspective(radians(90.0f), float(800 / 600), 0.1f, 100.0f);*/
 #pragma endregion
 
 #pragma region Light and Material
@@ -324,16 +326,17 @@ int main(int argc, char* args[])
 				break;
 
 			case SDL_MOUSEMOTION:
-				// Get Mouse Motion of X and Y
-				CameraX += ev.motion.xrel / 200.0f;
-				CameraY += -ev.motion.yrel / 200.0f;
-				// Limit camera range
-				if (CameraY > 150.0f) CameraY = 150.0f; else if (CameraY < -150.0f) CameraY = -150.0f;
-				// Calculate camera target using CameraX and CameraY
-				cameraTarget = cameraPosition + CameraDistance * vec3(cos(CameraX), tan(CameraY), sin(CameraX));
-				// Normalised camera direction
-				cameraDirection = normalize(cameraTarget - cameraPosition);
-				
+				//// Get Mouse Motion of X and Y
+				//camera->getX += ev.motion.xrel / 200.0f;
+				//camera->getY += -ev.motion.yrel / 200.0f;
+				//// Limit camera range
+				//if (camera->getY > 150.0f) camera->getY = 150.0f; else if (camera->getY < -150.0f) camera->getY = -150.0f;
+				//// Calculate camera target using CameraX and CameraY
+				//camera->getTarget = camera->getPosition + camera->getDistance * vec3(cos(camera->getX), tan(camera->getY), sin(camera->getX));
+				//// Normalised camera direction
+				//camera->getDirection = normalize(camera->getTarget - camera->getPosition);
+				camera->Mouse(ev.motion.xrel, -ev.motion.yrel);
+
 				break;
 
 				//KEYDOWN Message, called when a key has been pressed down
@@ -347,16 +350,20 @@ int main(int argc, char* args[])
 					break;
 
 				case SDLK_w:
-					FPScameraPos = cameraDirection * 0.2f;
+					//camera->setFPScameraPos(camera->getDirection * 0.2f);
+					camera->Forward();
 					break;
 				case SDLK_s:
-					FPScameraPos = -cameraDirection * 0.2f;
+					//camera->setFPScameraPos(-camera->getDirection * 0.2f);
+					camera->Backward();
 					break;
 				case SDLK_a:
-					FPScameraPos = -cross(cameraDirection, cameraUp) * 0.5f;
+					//camera->setFPScameraPos(-camera->Cross(camera->getDirection, camera->getUp) * 0.5f); //-cross(camera->getDirection, camera->getUp) * 0.5f
+					camera->Left();
 					break;
 				case SDLK_d:
-					FPScameraPos = cross(cameraDirection, cameraUp) * 0.5f;
+					//camera->setFPScameraPos(camera->Cross(camera->getDirection, camera->getUp) * 0.5f);
+					camera->Right();
 					break;
 
 				case SDLK_SPACE:
@@ -385,8 +392,10 @@ int main(int argc, char* args[])
 
 
 				}
-				cameraPosition += FPScameraPos;
-				cameraTarget += FPScameraPos;
+				/*camera->setPosition(camera->getPosition + camera->getFPScameraPos);
+				camera->setTarget(camera->getTarget + camera->getFPScameraPos);*/
+				//cameraTarget += FPScameraPos;
+				camera->FPSUpdate();
 			}
 		}
 		//Update Game and Draw with OpenGL!!		
@@ -410,7 +419,8 @@ int main(int argc, char* args[])
 		//mat4 rotationMatrix = coffee.get //(coffee->getRotation.x, vec3(1.0f, 0.0f, 0.0f))*(coffee->getRotation.y, vec3(0.0f, 1.0f, 0.0f))*(coffee->getRotation.z, vec3(0.0f, 0.0f, 1.0f));
 		//mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
 
-		viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
+		camera->Update();
+		//viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
 
 		// old code
 		/*btTransform trans;
@@ -445,25 +455,30 @@ int main(int argc, char* args[])
 			pObj->preRender();
 			GLuint currentShaderProgramID = pObj->getShaderProgramID();
 
-			GLint viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
+			/*GLint viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
 			GLint projectionMatrixLocation = glGetUniformLocation(currentShaderProgramID, "projectionMatrix");
 
-			GLint cameraPositionLocation = glGetUniformLocation(currentShaderProgramID, "cameraPosition");
+			GLint cameraPositionLocation = glGetUniformLocation(currentShaderProgramID, "cameraPosition");*/
 
 			GLint lightDirectionLocation = glGetUniformLocation(currentShaderProgramID, "lightDirection");
 			GLint ambientLightColourLocation = glGetUniformLocation(currentShaderProgramID, "ambientLightColour");
 			GLint diffuseLightColourLocation = glGetUniformLocation(currentShaderProgramID, "diffuseLightColour");
 			GLint specularLightColourLocation = glGetUniformLocation(currentShaderProgramID, "specularLightColour");
 
-			glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
+			
+			/*glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(camera->getViewMatrix));
 			glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
-			glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
+			glUniform3fv(cameraPositionLocation, 1, value_ptr(camera->getPosition));*/
 			glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
 			glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
 			glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
 			glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
 			pObj->Render();
+			camera->Render(currentShaderProgramID);
+			//viewMatrixLocation, projectionMatrixLocation, cameraPositionLocation
 		}
+
+		
 
 		/*GLuint currentShaderProgramID = droid->getShaderProgramID();
 

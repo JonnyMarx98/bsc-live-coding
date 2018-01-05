@@ -55,7 +55,7 @@ public:
 		// Get/Set specular power
 		void setSpecularPower(float power)
 		{
-			m_SpecularPower;
+			m_SpecularPower = power;
 		};
 		float getSpecularPower()
 		{
@@ -66,7 +66,7 @@ public:
 		{
 			return m_ShaderProgramID;
 		};
-
+		 
 		void loadMeshes(const std::string& filename);
 		void loadDiffuseMap(const std::string& filename);
 		void loadShaderProgram(const std::string& vertShaderFilename, const std::string& fragShaderFilename);

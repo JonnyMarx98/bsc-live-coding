@@ -80,7 +80,6 @@ void GameObject::preRender()
 	
 	glUseProgram(m_ShaderProgramID);
 
-	
 	GLint modelMatrixLocation = glGetUniformLocation(m_ShaderProgramID, "modelMatrix");
 	GLint textureLocation = glGetUniformLocation(m_ShaderProgramID, "baseTexture");
 	GLint ambientMaterialColourLocation = glGetUniformLocation(m_ShaderProgramID, "ambientMaterialColour");
@@ -94,7 +93,7 @@ void GameObject::preRender()
 	glUniform4fv(specularMaterialColourLocation, 1, value_ptr(m_SpecularMaterialColour));
 	glUniform4fv(ambientMaterialColourLocation, 1, value_ptr(m_AmbientMaterialColour));
 	glUniform1f(specularPowerLocation, m_SpecularPower);
-	// We're gonna fix that in a couple of seconds
+	
 	
 }
 
