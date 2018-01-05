@@ -74,15 +74,6 @@ int main(int argc, char* args[])
 		droid->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
 		gameObjectList.push_back(droid);
 	}
-		
-	/*droid = new GameObject();
-	droid->loadMeshes("GNK_Droid.FBX");
-	droid->loadDiffuseMap("GNK_BaseColor.png");
-	droid->setPosition(vec3(0.0f, 2.0f, 0.0f));
-	droid->setScale(vec3(0.1f, 0.1f, 0.1f));
-	droid->setRotation(vec3(radians(-90.0f), 0.0f, 0.0f));
-	droid->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
-	gameObjectList.push_back(droid);*/
 
 	GameObject * coffee = new GameObject();
 	coffee->loadMeshes("Coffee.FBX");
@@ -93,45 +84,10 @@ int main(int argc, char* args[])
 	coffee->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
 	gameObjectList.push_back(coffee);
 
-	//unsigned int numberOfVerts = 0;
-	//unsigned int numberOfIndices = 0;
-	//loadModelFromFile("Tank1.FBX", vertexbuffer, elementbuffer, numberOfVerts, numberOfIndices);
-
-	/*std::vector<Mesh*> meshes;
-	loadMeshesFromFile("GNK_Droid.FBX", meshes);
-
-	GLuint textureID = loadTextureFromFile("GNK_BaseColor.png");*/
-
-	/*vec3 objPosition = vec3(0.0f,10.0f,0.0f);
-	vec3 objScale = vec3(0.1f, 0.1f, 0.1f);
-	vec3 objRotation = vec3(radians(-90.0f), 0.0f, 0.0f);*/
-
-	// Coffee transform
-	/*vec3 objPosition = vec3(0.0f, 0.0f, 35.0f);
-	vec3 objScale = vec3(0.7f, 0.7f, 0.7f);
-	vec3 objRotation = vec3(0.0f, radians(-90.0f), 0.0f);*/
-
-	
-	/*mat4 translationMatrix = translate(objPosition);
-	mat4 scaleMatrix = scale(objScale);
-	mat4 rotationMatrix= rotate(objRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(objRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(objRotation.z, vec3(0.0f, 0.0f, 1.0f));
-
-	mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;*/
-
 	Camera * camera = new Camera();
 
-	// Camera Properties
-	/*vec3 cameraPosition = vec3(0.0f, 8.0f, -30.0f);
-	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
-	vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
-	vec3 cameraDirection = vec3(0.0f);
-	vec3 FPScameraPos = vec3(0.0f);	
-	float CameraX = 0.0f;
-	float CameraY = 0.0f;
-	float CameraDistance = (float)(cameraTarget - cameraPosition).length();	
+	Raycast * raycast = new Raycast();
 
-	mat4 viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
-	mat4 projectionMatrix = perspective(radians(90.0f), float(800 / 600), 0.1f, 100.0f);*/
 #pragma endregion
 
 #pragma region Light and Material
@@ -289,6 +245,7 @@ int main(int argc, char* args[])
 	btRigidBody* coffeeRigidBody = new btRigidBody(coffeeRbInfo);
 
 	dynamicsWorld->addRigidBody(coffeeRigidBody);
+	
 
 	btVector3 coffeeForce = btVector3(5, 10, 0);
 	btVector3 coffeeImpulse = btVector3(0, 4, -2);
@@ -303,12 +260,13 @@ int main(int argc, char* args[])
 	SDL_SetRelativeMouseMode(SDL_bool(SDL_ENABLE));
 
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	// Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
+	
+	coffeeRigidBody->activate();
 
 	int lastTicks = SDL_GetTicks();
 	int currentTicks = SDL_GetTicks();
@@ -332,18 +290,19 @@ int main(int argc, char* args[])
 				break;
 
 			case SDL_MOUSEMOTION:
-				//// Get Mouse Motion of X and Y
-				//camera->getX += ev.motion.xrel / 200.0f;
-				//camera->getY += -ev.motion.yrel / 200.0f;
-				//// Limit camera range
-				//if (camera->getY > 150.0f) camera->getY = 150.0f; else if (camera->getY < -150.0f) camera->getY = -150.0f;
-				//// Calculate camera target using CameraX and CameraY
-				//camera->getTarget = camera->getPosition + camera->getDistance * vec3(cos(camera->getX), tan(camera->getY), sin(camera->getX));
-				//// Normalised camera direction
-				//camera->getDirection = normalize(camera->getTarget - camera->getPosition);
 				camera->Mouse(ev.motion.xrel, -ev.motion.yrel);
-
 				break;
+			case SDL_MOUSEBUTTONDOWN:
+				// Check button code of the pressed mouse button
+				switch (ev.button.button)
+				{
+				case SDL_BUTTON_LEFT:
+				{
+					// Fire raycast
+					raycast->update(camera, dynamicsWorld);
+					break;
+				}
+				}
 
 				//KEYDOWN Message, called when a key has been pressed down
 			case SDL_KEYDOWN:
@@ -372,6 +331,7 @@ int main(int argc, char* args[])
 					camera->Right();
 					break;
 
+				#pragma region KeyBindings
 				case SDLK_SPACE:
 					//Invert Gravity
 					InvertGravity *= -1;
@@ -380,6 +340,7 @@ int main(int argc, char* args[])
 					break;
 				case SDLK_LEFT:
 					//Apply a force
+					
 					coffeeRigidBody->applyCentralForce(coffeeForce);
 					break;
 				case SDLK_RIGHT:
@@ -399,26 +360,31 @@ int main(int argc, char* args[])
 				case SDLK_1:
 					// Revert back to original shader
 					glEnable(GL_DEPTH_TEST);
+					glEnable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postTextureFrag.glsl");
 					break;
 				case SDLK_2:
 					// Apply black and white post process effect
 					glEnable(GL_DEPTH_TEST);
+					glEnable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postBlackAndWhite.glsl");
 					break;
 				case SDLK_3:
 					// Apply greyscale post process effect
 					glEnable(GL_DEPTH_TEST);
+					glEnable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postGreyScale.glsl");
 					break;
 				case SDLK_4:
 					// Apply less red post process effect
 					glEnable(GL_DEPTH_TEST);
+					glEnable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postLessRed.glsl");
 					break;
 				case SDLK_5:
 					// Apply pink effect post process effect
 					glEnable(GL_DEPTH_TEST);
+					glEnable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postPinkEffect.glsl");
 					break;
 				case SDLK_6:
@@ -429,22 +395,22 @@ int main(int argc, char* args[])
 				case SDLK_i:
 					// Apply sepia post process effect
 					glDisable(GL_DEPTH_TEST);
+					glDisable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent.glsl");
 					break;
 				case SDLK_o:
 					glDisable(GL_DEPTH_TEST);
+					glDisable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent2.glsl");
 					break;
 				case SDLK_p:
 					glDisable(GL_DEPTH_TEST);
+					glDisable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent3.glsl");
 					break;
-
+#pragma endregion
 
 				}
-				/*camera->setPosition(camera->getPosition + camera->getFPScameraPos);
-				camera->setTarget(camera->getTarget + camera->getFPScameraPos);*/
-				//cameraTarget += FPScameraPos;
 				camera->FPSUpdate();
 			}
 		}
@@ -455,7 +421,7 @@ int main(int argc, char* args[])
 
 		#pragma region Physics
 
-		dynamicsWorld->stepSimulation(10.0f / 60.0f, 1);
+		dynamicsWorld->stepSimulation(1.0f / 60.0f);
 
 		coffeeTransform = coffeeRigidBody->getWorldTransform();
 		btVector3 coffeeOrigin = coffeeTransform.getOrigin();
@@ -464,27 +430,9 @@ int main(int argc, char* args[])
 		coffee->setPosition(vec3(coffeeOrigin.getX(), coffeeOrigin.getY(), coffeeOrigin.getZ()));
 		coffee->setRotation(vec3(coffeeRotation.getX(), coffeeRotation.getY(), coffeeRotation.getZ()));
 
-		//mat4 translationMatrix = coffee->getPosition;
-		//mat4 scaleMatrix = coffee->getScale;
-		//mat4 rotationMatrix = coffee.get //(coffee->getRotation.x, vec3(1.0f, 0.0f, 0.0f))*(coffee->getRotation.y, vec3(0.0f, 1.0f, 0.0f))*(coffee->getRotation.z, vec3(0.0f, 0.0f, 1.0f));
-		//mat4 modelMatrix = translationMatrix*rotationMatrix*scaleMatrix;
+		#pragma endregion		
 
 		camera->Update();
-		//viewMatrix = lookAt(cameraPosition, cameraTarget, cameraUp);
-
-		// old code
-		/*btTransform trans;
-		fallRigidBody->getMotionState()->getWorldTransform(trans);
-		btVector3 rigidBodyPos = trans.getOrigin();
-		objectPosition = vec3(rigidBodyPos.x(), rigidBodyPos.y(), rigidBodyPos.z());
-
-		mat4 translationMatrix = translate(objectPosition);
-		mat4 scaleMatrix = scale(objectScale);
-		mat4 rotationMatrix = rotate(objectRotation.x, vec3(1.0f, 0.0f, 0.0f))*rotate(objectRotation.y, vec3(0.0f, 1.0f, 0.0f))*rotate(objectRotation.z, vec3(0.0f, 0.0f, 1.0f));*/
-
-
-
-		#pragma endregion		
 
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
 		glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -682,6 +630,9 @@ int main(int argc, char* args[])
 			gameObjectIter = gameObjectList.erase(gameObjectIter);
 		}
 	}
+	delete camera;
+	delete raycast;
+
 	glDeleteProgram(postProcessingProgramID);
 	glDeleteVertexArrays(1, &screenVAO);
 	glDeleteBuffers(1, &screenQuadVBOID);
@@ -689,17 +640,6 @@ int main(int argc, char* args[])
 	glDeleteRenderbuffers(1, &depthRenderBufferID);
 	glDeleteTextures(1, &colourBufferID);
 
-	/*meshes.clear();
-
-	glDeleteProgram(programID);
-	glDeleteTextures(1, &textureID);*/
-	/*if (droid)
-	{
-		droid->destroy();
-		delete droid;
-		droid = nullptr;
-	}
-*/
 	//Delete context
 	SDL_GL_DeleteContext(GL_Context);
 
