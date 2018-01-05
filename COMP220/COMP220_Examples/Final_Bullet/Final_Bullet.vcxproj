@@ -182,6 +182,9 @@ copy ..\..\..\Libraries\glew-2.1.0\bin\Release\x64\glew32.dll "$(OutDir)\glew32.
     <None Include="postPinkEffect.glsl" />
     <None Include="postSepia.glsl" />
     <None Include="postTextureFrag.glsl" />
+    <None Include="SemiTransparent.glsl" />
+    <None Include="SemiTransparent2.glsl" />
+    <None Include="SemiTransparent3.glsl" />
     <None Include="textureFrag.glsl" />
     <None Include="textureVert.glsl" />
     <None Include="vert.glsl" />

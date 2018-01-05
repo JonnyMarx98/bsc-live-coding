@@ -303,7 +303,13 @@ int main(int argc, char* args[])
 	SDL_SetRelativeMouseMode(SDL_bool(SDL_ENABLE));
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+
+	// Enable blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+
 	int lastTicks = SDL_GetTicks();
 	int currentTicks = SDL_GetTicks();
 
@@ -388,6 +394,50 @@ int main(int argc, char* args[])
 				case SDLK_UP:
 					//Apply an torque impulse
 					coffeeRigidBody->applyTorqueImpulse(coffeeTorque);
+					break;
+
+				case SDLK_1:
+					// Revert back to original shader
+					glEnable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postTextureFrag.glsl");
+					break;
+				case SDLK_2:
+					// Apply black and white post process effect
+					glEnable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postBlackAndWhite.glsl");
+					break;
+				case SDLK_3:
+					// Apply greyscale post process effect
+					glEnable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postGreyScale.glsl");
+					break;
+				case SDLK_4:
+					// Apply less red post process effect
+					glEnable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postLessRed.glsl");
+					break;
+				case SDLK_5:
+					// Apply pink effect post process effect
+					glEnable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postPinkEffect.glsl");
+					break;
+				case SDLK_6:
+					// Apply sepia post process effect
+					glEnable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postSepia.glsl");
+					break;
+				case SDLK_i:
+					// Apply sepia post process effect
+					glDisable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent.glsl");
+					break;
+				case SDLK_o:
+					glDisable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent2.glsl");
+					break;
+				case SDLK_p:
+					glDisable(GL_DEPTH_TEST);
+					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent3.glsl");
 					break;
 
 

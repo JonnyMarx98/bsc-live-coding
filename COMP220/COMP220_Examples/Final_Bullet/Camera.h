@@ -91,6 +91,15 @@ public:
 	{
 		return m_ViewMatrix;
 	};
+	// Get/Set projectionMatrix
+	void setProjectionMatrix(const glm::mat4& projection)
+	{
+		m_ProjectionMatrix = projection;
+	};
+	glm::mat4& getProjectionMatrix()
+	{
+		return m_ProjectionMatrix;
+	};
 
 	glm::vec3 Cross(const glm::vec3& a, const glm::vec3& b)
 	{
