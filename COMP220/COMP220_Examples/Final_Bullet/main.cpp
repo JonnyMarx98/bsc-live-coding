@@ -156,9 +156,7 @@ int main(int argc, char* args[])
 	GLuint postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postTextureFrag.glsl");
 	GLint texture0Location = glGetUniformLocation(postProcessingProgramID, "texture0");
 
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	// GLuint programID = LoadShaders("lightingVert.glsl", "lightingFrag.glsl");
 
 	static const GLfloat fragColour[] = { 0.0f,1.0f,0.0f,1.0f };
 
@@ -405,7 +403,7 @@ int main(int argc, char* args[])
 
 				}
 				// Updates FPS camera position
-				camera->FPSUpdate();
+				camera->CameraTransformUpdate();
 			}
 		}
 		//Update Game and Draw with OpenGL!!		
@@ -522,3 +520,5 @@ int main(int argc, char* args[])
 
 	return 0;
 }
+
+

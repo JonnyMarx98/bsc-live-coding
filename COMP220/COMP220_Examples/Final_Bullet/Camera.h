@@ -111,7 +111,7 @@ public:
 		return m_ShaderProgramID;
 	};
 
-	void FPSUpdate();
+	void CameraTransformUpdate();
 	void Update();
 	void Render(GLint ShaderID);
 	void Mouse(float X, float Y);

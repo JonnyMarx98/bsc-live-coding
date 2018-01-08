@@ -22,25 +22,28 @@ Camera::~Camera()
 {
 }
 
-void Camera::FPSUpdate()
+void Camera::CameraTransformUpdate()
 {
+	// Updates the position and target of the camera
 	m_CameraPosition += m_FPScameraPos;
 	m_CameraTarget += m_FPScameraPos;
 }
 
 void Camera::Update()
 {
+	// Re-calculates the view matrix
 	m_ViewMatrix = glm::lookAt(m_CameraPosition, m_CameraTarget, m_CameraUp);
 }
 
-void Camera::Render(GLint ShaderID) //GLint view, GLint project, GLint pos
+void Camera::Render(GLint ShaderID)
 {
+	// Set shader
 	glUseProgram(ShaderID);
 
+	// Render view matrix, projection matrix, and camera position
 	GLint viewMatrixLocation = glGetUniformLocation(ShaderID, "viewMatrix");
 	GLint projectionMatrixLocation = glGetUniformLocation(ShaderID, "projectionMatrix");
 	GLint cameraPositionLocation = glGetUniformLocation(ShaderID, "cameraPosition");
-
 	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(m_ViewMatrix));
 	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(m_ProjectionMatrix));
 	glUniform3fv(cameraPositionLocation, 1, value_ptr(m_CameraPosition));
@@ -61,21 +64,25 @@ void Camera::Mouse(float X,float Y)
 
 void Camera::Forward()
 {
+	// Moves camera forward
 	m_FPScameraPos = m_CameraDirection * 0.2f;
 }
 
 void Camera::Backward()
 {
+	// Moves camera backward
 	m_FPScameraPos = -m_CameraDirection * 0.2f;
 }
 
 void Camera::Right()
 {
+	// Moves camera right
 	m_FPScameraPos = cross(m_CameraDirection, m_CameraUp) * 0.5f;
 }
 
 void Camera::Left()
 {
+	// Moves camera left
 	m_FPScameraPos = -cross(m_CameraDirection, m_CameraUp) * 0.5f;
 }
 
