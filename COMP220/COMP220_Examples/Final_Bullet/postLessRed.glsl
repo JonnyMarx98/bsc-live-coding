@@ -6,6 +6,7 @@ out vec4 colour;
 
 uniform sampler2D texture0;
 
+// decreases red
 float decreaseRed(vec3 colour, float amount)
 {
 	return (colour.r / amount);
