@@ -414,13 +414,15 @@ int main(int argc, char* args[])
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
 #pragma region Physics
-
+		// physics tick
 		dynamicsWorld->stepSimulation(1.0f / 60.0f);
 
+		// Gets rotation and position of rigid body 
 		coffeeTransform = coffeeRigidBody->getWorldTransform();
 		btVector3 coffeeOrigin = coffeeTransform.getOrigin();
 		btQuaternion coffeeRotation = coffeeTransform.getRotation();
 
+		// Sets rotation and position of coffee model
 		coffee->setPosition(vec3(coffeeOrigin.getX(), coffeeOrigin.getY(), coffeeOrigin.getZ()));
 		coffee->setRotation(vec3(coffeeRotation.getX(), coffeeRotation.getY(), coffeeRotation.getZ()));
 
@@ -483,46 +485,6 @@ int main(int argc, char* args[])
 #pragma endregion
 
 #pragma region GarbageCollection/Quit
-
-	//dynamicsWorld->removeRigidBody(droidRigidBody);
-	//delete droidCollisionShape;
-	//delete droidRigidBody->getMotionState();
-	//delete droidRigidBody;
-
-	//dynamicsWorld->removeRigidBody(groundRigidBody);
-	//// delete ground
-	//delete groundShape;
-	//delete groundRigidBody->getMotionState();
-	//delete groundRigidBody;
-
-	////delete dynamics world
-	//delete dynamicsWorld;
-
-	////delete solver
-	//delete solver;
-
-	////delete broadphase
-	//delete overlappingPairCache;
-
-	////delete dispatcher
-	//delete dispatcher;
-
-	//delete collisionConfiguration;
-
-	/*auto iter = meshes.begin();
-	while (iter != meshes.end())
-	{
-	if ((*iter))
-	{
-	(*iter)->destroy();
-	delete (*iter);
-	iter = meshes.erase(iter);
-	}
-	else
-	{
-	iter++;
-	}
-	}*/
 
 	auto gameObjectIter = gameObjectList.begin();
 	while (gameObjectIter != gameObjectList.end())
