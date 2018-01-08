@@ -62,6 +62,7 @@ int main(int argc, char* args[])
 	// GameObject list
 	std::vector<GameObject*> gameObjectList;
 
+	// Spawns 3 droids on top of each other
 	for (int i = 0; i < 3; i++)
 	{
 		// Create GameObject
@@ -75,6 +76,7 @@ int main(int argc, char* args[])
 		gameObjectList.push_back(droid);
 	}
 
+	// Create Coffee object
 	GameObject * coffee = new GameObject();
 	coffee->loadMeshes("Coffee.FBX");
 	coffee->loadDiffuseMap("Coffee.tga");
@@ -84,8 +86,9 @@ int main(int argc, char* args[])
 	coffee->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
 	gameObjectList.push_back(coffee);
 
+	// Create camera 
 	Camera * camera = new Camera();
-
+	// Create Raycast
 	Raycast * raycast = new Raycast();
 
 #pragma endregion
@@ -97,12 +100,6 @@ int main(int argc, char* args[])
 	vec4 diffuseLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	vec4 specularLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	vec4 ambientLightColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	//material
-	/*vec4 diffuseMaterialColour = vec4(0.9f, 0.9f, 0.9f, 1.0f);
-	vec4 specularMaterialColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	vec4 ambientMaterialColour = vec4(0.1f, 0.1f, 0.1f, 1.0f);
-	float specularPower = 25.0f;*/
 
 #pragma endregion
 
@@ -124,6 +121,7 @@ int main(int argc, char* args[])
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBufferID);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colourBufferID, 0);
 
+	// Error checking for frame buffer
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Unable to create frame buffer for post processing", "Frame Buffer Error", NULL);
@@ -166,27 +164,6 @@ int main(int argc, char* args[])
 
 #pragma endregion
 
-#pragma region GetUniformLocations
-
-	/*GLint fragColourLocation = glGetUniformLocation(programID, "fragColour");
-	GLint currentTimeLocation= glGetUniformLocation(programID, "time");
-	GLint modelMatrixLocation = glGetUniformLocation(programID, "modelMatrix");
-	GLint viewMatrixLocation = glGetUniformLocation(programID, "viewMatrix");
-	GLint projectionMatrixLocation = glGetUniformLocation(programID, "projectionMatrix");
-	GLint textureLocation = glGetUniformLocation(programID, "baseTexture");
-	GLint cameraPositionLocation = glGetUniformLocation(programID, "cameraPosition");
-
-	GLint lightDirectionLocation = glGetUniformLocation(programID, "lightDirection");
-	GLint ambientLightColourLocation = glGetUniformLocation(programID, "ambientLightColour");
-	GLint diffuseLightColourLocation = glGetUniformLocation(programID, "diffuseLightColour");
-	GLint specularLightColourLocation = glGetUniformLocation(programID, "specularLightColour");
-
-	GLint ambientMaterialColourLocation = glGetUniformLocation(programID, "ambientMaterialColour");
-	GLint diffuseMaterialColourLocation = glGetUniformLocation(programID, "diffuseMaterialColour");
-	GLint specularMaterialColourLocation = glGetUniformLocation(programID, "specularMaterialColour");
-	GLint specularPowerLocation = glGetUniformLocation(programID, "specularPower");*/
-
-#pragma endregion
 
 #pragma region BulletPhysics
 
@@ -224,7 +201,7 @@ int main(int argc, char* args[])
 
 	//add the body to the dynamics world
 	dynamicsWorld->addRigidBody(groundRigidBody);
-	
+
 	btCollisionShape* coffeeCollisionShape = new btBoxShape(btVector3(2, 2, 2));
 	// Create Dynamic Objects
 	btTransform coffeeTransform;
@@ -243,9 +220,9 @@ int main(int argc, char* args[])
 	btDefaultMotionState* coffeeMotionState = new btDefaultMotionState(coffeeTransform);
 	btRigidBody::btRigidBodyConstructionInfo coffeeRbInfo(coffeeMass, coffeeMotionState, coffeeCollisionShape, coffeeInertia);
 	btRigidBody* coffeeRigidBody = new btRigidBody(coffeeRbInfo);
+	coffeeRigidBody->setActivationState(DISABLE_DEACTIVATION);
 
 	dynamicsWorld->addRigidBody(coffeeRigidBody);
-	
 
 	btVector3 coffeeForce = btVector3(5, 10, 0);
 	btVector3 coffeeImpulse = btVector3(0, 4, -2);
@@ -265,7 +242,8 @@ int main(int argc, char* args[])
 	// Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
+	// activates rigid body
 	coffeeRigidBody->activate();
 
 	int lastTicks = SDL_GetTicks();
@@ -310,6 +288,8 @@ int main(int argc, char* args[])
 				switch (ev.key.keysym.sym)
 				{
 					// Keys
+
+					// quits program
 				case SDLK_ESCAPE:
 					running = false;
 					break;
@@ -331,7 +311,7 @@ int main(int argc, char* args[])
 					camera->Right();
 					break;
 
-				#pragma region KeyBindings
+#pragma region KeyBindings
 				case SDLK_SPACE:
 					//Invert Gravity
 					InvertGravity *= -1;
@@ -340,7 +320,7 @@ int main(int argc, char* args[])
 					break;
 				case SDLK_LEFT:
 					//Apply a force
-					
+
 					coffeeRigidBody->applyCentralForce(coffeeForce);
 					break;
 				case SDLK_RIGHT:
@@ -393,24 +373,38 @@ int main(int argc, char* args[])
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "postSepia.glsl");
 					break;
 				case SDLK_i:
-					// Apply sepia post process effect
+					// Apply semi transparent
 					glDisable(GL_DEPTH_TEST);
 					glDisable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent.glsl");
 					break;
 				case SDLK_o:
+					// Apply semi transparent
 					glDisable(GL_DEPTH_TEST);
 					glDisable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent2.glsl");
 					break;
 				case SDLK_p:
+					// Apply semi transparent
 					glDisable(GL_DEPTH_TEST);
 					glDisable(GL_CULL_FACE);
 					postProcessingProgramID = LoadShaders("passThroughVert.glsl", "SemiTransparent3.glsl");
 					break;
+
+				case SDLK_h:
+					// Spawn coffee cup
+					coffee = new GameObject();
+					coffee->loadMeshes("Coffee.FBX");
+					coffee->loadDiffuseMap("Coffee.tga");
+					coffee->setPosition(vec3(2.0f, 15.0f, 5.0f));
+					coffee->setScale(vec3(0.3f, 0.3f, 0.3f));
+					coffee->setRotation(vec3(0.0f, radians(-90.0f), 0.0f));
+					coffee->loadShaderProgram("lightingVert.glsl", "lightingFrag.glsl");
+					gameObjectList.push_back(coffee);
 #pragma endregion
 
 				}
+				// Updates FPS camera position
 				camera->FPSUpdate();
 			}
 		}
@@ -419,7 +413,7 @@ int main(int argc, char* args[])
 		currentTicks = SDL_GetTicks();
 		float deltaTime = (float)(currentTicks - lastTicks) / 1000.0f;
 
-		#pragma region Physics
+#pragma region Physics
 
 		dynamicsWorld->stepSimulation(1.0f / 60.0f);
 
@@ -430,7 +424,7 @@ int main(int argc, char* args[])
 		coffee->setPosition(vec3(coffeeOrigin.getX(), coffeeOrigin.getY(), coffeeOrigin.getZ()));
 		coffee->setRotation(vec3(coffeeRotation.getX(), coffeeRotation.getY(), coffeeRotation.getZ()));
 
-		#pragma endregion		
+#pragma endregion		
 
 		camera->Update();
 
@@ -440,121 +434,31 @@ int main(int argc, char* args[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// DROID
-		//droid->Update();
+		// 
 		for (GameObject * pObj : gameObjectList)
 		{
 			pObj->Update();
 		}
 
-		//droid->preRender();
 		for (GameObject * pObj : gameObjectList)
 		{
 			pObj->preRender();
 			GLuint currentShaderProgramID = pObj->getShaderProgramID();
-
-			/*GLint viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
-			GLint projectionMatrixLocation = glGetUniformLocation(currentShaderProgramID, "projectionMatrix");
-
-			GLint cameraPositionLocation = glGetUniformLocation(currentShaderProgramID, "cameraPosition");*/
 
 			GLint lightDirectionLocation = glGetUniformLocation(currentShaderProgramID, "lightDirection");
 			GLint ambientLightColourLocation = glGetUniformLocation(currentShaderProgramID, "ambientLightColour");
 			GLint diffuseLightColourLocation = glGetUniformLocation(currentShaderProgramID, "diffuseLightColour");
 			GLint specularLightColourLocation = glGetUniformLocation(currentShaderProgramID, "specularLightColour");
 
-			
-			/*glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(camera->getViewMatrix));
-			glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
-			glUniform3fv(cameraPositionLocation, 1, value_ptr(camera->getPosition));*/
 			glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
 			glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
 			glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
 			glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
 			pObj->Render();
 			camera->Render(currentShaderProgramID);
-			//viewMatrixLocation, projectionMatrixLocation, cameraPositionLocation
 		}
 
-		
 
-		/*GLuint currentShaderProgramID = droid->getShaderProgramID();
-
-		GLint viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
-		GLint projectionMatrixLocation = glGetUniformLocation(currentShaderProgramID, "projectionMatrix");
-
-		GLint cameraPositionLocation = glGetUniformLocation(currentShaderProgramID, "cameraPosition");
-
-		GLint lightDirectionLocation = glGetUniformLocation(currentShaderProgramID, "lightDirection");
-		GLint ambientLightColourLocation = glGetUniformLocation(currentShaderProgramID, "ambientLightColour");
-		GLint diffuseLightColourLocation = glGetUniformLocation(currentShaderProgramID, "diffuseLightColour");
-		GLint specularLightColourLocation = glGetUniformLocation(currentShaderProgramID, "specularLightColour");
-
-		glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
-		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
-		glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
-		glUniform3fv(lightDirectionLocation,1,value_ptr(lightDirection));
-		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
-		glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
-		glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
-		droid->Render();*/
-
-		// COFFEE
-		/*coffee->Update();
-		coffee->preRender();
-		currentShaderProgramID = coffee->getShaderProgramID();
-
-		viewMatrixLocation = glGetUniformLocation(currentShaderProgramID, "viewMatrix");
-		projectionMatrixLocation = glGetUniformLocation(currentShaderProgramID, "projectionMatrix");
-
-		cameraPositionLocation = glGetUniformLocation(currentShaderProgramID, "cameraPosition");
-
-		lightDirectionLocation = glGetUniformLocation(currentShaderProgramID, "lightDirection");
-		ambientLightColourLocation = glGetUniformLocation(currentShaderProgramID, "ambientLightColour");
-		diffuseLightColourLocation = glGetUniformLocation(currentShaderProgramID, "diffuseLightColour");
-		specularLightColourLocation = glGetUniformLocation(currentShaderProgramID, "specularLightColour");
-
-		glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
-		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
-		glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
-		glUniform3fv(lightDirectionLocation, 1, value_ptr(lightDirection));
-		glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
-		glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
-		glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
-		coffee->Render();*/
-
-		//glActiveTexture(GL_TEXTURE);
-		//glBindTexture(GL_TEXTURE_2D, textureID);
-
-		//glUseProgram(programID);
-
-		//glUniform4fv(fragColourLocation, 1, fragColour);
-		//glUniform1f(currentTimeLocation, (float)(currentTicks) / 1000.0f);
-		//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, value_ptr(modelMatrix));
-		//glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, value_ptr(viewMatrix));
-		//glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, value_ptr(projectionMatrix));
-
-		//glUniform3fv(cameraPositionLocation, 1, value_ptr(cameraPosition));
-
-		//glUniform1i(textureLocation, 0);
-
-		//glUniform3fv(lightDirectionLocation,1,value_ptr(lightDirection));
-		//glUniform4fv(diffuseLightColourLocation, 1, value_ptr(diffuseLightColour));
-		//glUniform4fv(specularLightColourLocation, 1, value_ptr(specularLightColour));
-		//glUniform4fv(ambientLightColourLocation, 1, value_ptr(ambientLightColour));
-
-		//glUniform4fv(diffuseMaterialColourLocation, 1, value_ptr(diffuseMaterialColour));
-		//glUniform4fv(specularMaterialColourLocation, 1, value_ptr(specularMaterialColour));
-		//glUniform1f(specularPowerLocation, specularPower);
-		//glUniform4fv(ambientMaterialColourLocation, 1, value_ptr(ambientMaterialColour));
-
-		//// Draw
-		//for (Mesh* currentMesh : meshes)
-		//{
-		//	currentMesh->render();
-		//}
-		//glDisable(GL_DEPTH_TEST);
-		
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -608,16 +512,16 @@ int main(int argc, char* args[])
 	/*auto iter = meshes.begin();
 	while (iter != meshes.end())
 	{
-		if ((*iter))
-		{
-			(*iter)->destroy();
-			delete (*iter);
-			iter = meshes.erase(iter);
-		}
-		else
-		{
-			iter++;
-		}
+	if ((*iter))
+	{
+	(*iter)->destroy();
+	delete (*iter);
+	iter = meshes.erase(iter);
+	}
+	else
+	{
+	iter++;
+	}
 	}*/
 
 	auto gameObjectIter = gameObjectList.begin();
